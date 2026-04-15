@@ -60,7 +60,7 @@ public class WaitingListService {
 
     public List<WaitingEntry> findMatchingEntries(Room room) {
         return waitingList.stream()
-                .filter(WaitingEntry::matchesRoom)
+                .filter(w -> w.matchesRoom(room))
                 .filter(w -> !w.isNotified())
                 .sorted(Comparator.comparing(WaitingEntry::getRegisteredAt))
                 .toList();
@@ -69,7 +69,7 @@ public class WaitingListService {
     public List<WaitingEntry> findMatchingEntriesByRoomType(Room room, String roomType) {
         return waitingList.stream()
                 .filter(w -> w.getRoomType().equalsIgnoreCase(roomType))
-                .filter(w -> w.getRoom().getCapacity() >= room.getCapacity())
+                .filter(w -> w.getNumberOfGuests() <= room.getCapacity())
                 .filter(w -> !w.isNotified())
                 .sorted(Comparator.comparing(WaitingEntry::getRegisteredAt))
                 .toList();

@@ -4,7 +4,6 @@ import com.hotel.exception.*;
 import com.hotel.model.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,9 +74,9 @@ public class ReservationService {
                     room.getRoomType(), numberOfGuests);
             
             if (!alternatives.isEmpty()) {
-                return Result.fail(alternatives, 
-                        "Phòng " + room.getRoomId() + " đã được đặt. Gợi ý: " + 
-                        alternatives.stream().map(Room::getRoomId).collect(Collectors.joining(", ")));
+                String suggestion = "Phòng " + room.getRoomId() + " đã được đặt. Gợi ý: " + 
+                        alternatives.stream().map(Room::getRoomId).collect(Collectors.joining(", "));
+                return Result.fail(suggestion);
             }
             return Result.fail("Phòng đã hết. Bạn có muốn thêm vào danh sách chờ không?");
         }
@@ -102,9 +101,8 @@ public class ReservationService {
             int numberOfGuests, ReservationType type, BookingSource source,
             String paymentMethod, String createdBy) {
         
-        Employee emp = new Employee("TEMP", "Temp", "0", "temp@temp.com", 
+        Employee emp = new Employee(createdBy, "Temp", "0", "temp@temp.com", 
                 EmployeeRole.RESERVATION_STAFF, "x");
-        emp.setEmployeeId(createdBy);
         return createReservation(guest, room, checkIn, checkOut, numberOfGuests, 
                 type, source, paymentMethod, null, emp);
     }

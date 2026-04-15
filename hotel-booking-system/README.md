@@ -41,7 +41,15 @@ hotel-booking-system/
 │   │   │   ├── ReservationNotFoundException.java
 │   │   │   ├── InvalidOperationException.java
 │   │   │   └── UnauthorizedOperationException.java
-│   │   ├── repository/     ← Data Access Layer (Tuần 7+)
+│   │   ├── repository/     ← Data Access Layer (Tuần 7) ✅
+│   │   │   ├── Repository.java (interface)
+│   │   │   ├── JsonRepository.java (base impl)
+│   │   │   ├── RoomRepository.java
+│   │   │   ├── GuestRepository.java
+│   │   │   ├── EmployeeRepository.java
+│   │   │   ├── ReservationRepository.java
+│   │   │   ├── WaitingEntryRepository.java
+│   │   │   └── DatabaseService.java (facade)
 │   │   └── Main.java
 │   └── test/java/com/hotel/
 │       └── model/          ← Unit Tests
@@ -60,7 +68,8 @@ hotel-booking-system/
 | 4 | Đặc tả yêu cầu + diagrams | ✅ Hoàn thành |
 | 5 | Models & Data Layer | ✅ Hoàn thành |
 | 6 | Service Layer | ✅ Hoàn thành |
-| 7+ | Repository, UI | 🔄 Tiếp theo |
+| 7 | Repository Layer | ✅ Hoàn thành |
+| 8+ | UI Layer | 🔄 Tiếp theo |
 
 ---
 
