@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả tìm kiếm - ABC Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1a1a2e !important; }
+        .card { border-radius: 15px; }
+        .stat-box { border-radius: 15px; padding: 25px; text-align: center; }
+        .room-card { border-radius: 15px; transition: transform 0.3s; cursor: pointer; }
+        .room-card:hover { transform: translateY(-5px); }
+        .upgrade-card { border: 2px dashed #28a745; border-radius: 15px; background: #f0fff4; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-hotel me-2"></i>ABC Hotel
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Trang chủ</a>
+                <a class="nav-link" href="/step1">Đặt phòng</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h2><i class="fas fa-search me-2 text-primary"></i>Kết quả tìm kiếm</h2>
+            <p class="text-muted">
+                <span th:text="${checkIn}">-</span> → <span th:text="${checkOut}">-</span> | 
+                <span th:text="${guests}">-</span> khách | <span th:text="${nights}">-</span> đêm
+            </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="stat-box bg-primary text-white">
+                    <h3 th:text="${availability.totalRooms()}">0</h3>
+                    <p class="mb-0">Tổng buồng</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-box bg-danger text-white">
+                    <h3 th:text="${availability.currentlyOccupied()}">0</h3>
+                    <p class="mb-0">Đã đặt</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-box bg-warning text-dark">
+                    <h3 th:text="${availability.unavailableRooms()}">0</h3>
+                    <p class="mb-0">Bảo trì</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-box bg-success text-white">
+                    <h3 th:text="${availability.roomsAvailable()}">0</h3>
+                    <p class="mb-0">Còn trống</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Rooms -->
+        <div th:if="${!availableRooms.isEmpty()}" class="card p-4 mb-4">
+            <h4 class="text-success mb-4"><i class="fas fa-check-circle me-2"></i>Phòng trống phù hợp</h4>
+            <div class="row">
+                <div th:each="room : ${availableRooms}" class="col-md-4 mb-3">
+                    <div class="card room-card h-100 border-success">
+                        <div class="card-body text-center">
+                            <h4 class="text-primary" th:text="${room.roomId}">R101</h4>
+                            <span class="badge bg-primary mb-2" th:text="${room.roomType}">Double</span>
+                            <p class="mb-1"><small><span th:text="${room.floor}">1</span> tầng | Tối đa <span th:text="${room.capacity}">2</span> khách</small></p>
+                            <h5 class="text-success mb-3">
+                                <span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">850,000</span> VND
+                            </h5>
+                            <a th:href="@{/step1}" class="btn btn-success btn-sm w-100">
+                                <i class="fas fa-calendar-check me-1"></i>Đặt phòng này
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Rooms -->
+        <div th:if="${availableRooms.isEmpty()}" class="card p-4 mb-4 border-warning text-center">
+            <h4 class="text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Không có phòng trống</h4>
+            <p>Loại phòng bạn chọn đã hết. Vui lòng thử loại phòng khác hoặc ngày khác.</p>
+        </div>
+
+        <!-- Upgrades -->
+        <div th:if="${!upgrades.isEmpty()}" class="card p-4 upgrade-card">
+            <h4 class="text-success mb-4"><i class="fas fa-arrow-up me-2"></i>Gợi ý nâng hạng</h4>
+            <div th:each="upgrade : ${upgrades}" class="mb-3">
+                <h5 class="text-primary" th:text="${upgrade.type}">Suite</h5>
+                <div class="row">
+                    <div th:each="room : ${upgrade.rooms}" class="col-md-4 mb-2">
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <span class="fw-bold" th:text="${room.roomId}">R201</span> - 
+                                <span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">1,500,000</span> VND
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="text-center mt-4">
+            <a href="/step2" class="btn btn-outline-primary btn-lg me-3">
+                <i class="fas fa-arrow-left me-2"></i>Tìm lại
+            </a>
+            <a href="/step1" class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-check me-2"></i>Đặt phòng
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

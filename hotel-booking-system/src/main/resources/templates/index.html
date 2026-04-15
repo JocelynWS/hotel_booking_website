@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khách Sạn ABC - Đặt Phòng Trực Tuyến</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1a1a2e !important; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 0; color: white; }
+        .booking-card { background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 30px; margin-top: -50px; }
+        .room-card { border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; border: none; }
+        .room-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .room-img { height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white; }
+        .price-tag { font-size: 1.5rem; font-weight: bold; color: #e74c3c; }
+        .btn-booking { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 15px 40px; font-size: 1.2rem; border-radius: 50px; }
+        .btn-booking:hover { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); transform: scale(1.05); }
+        .stat-box { text-align: center; padding: 20px; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: #667eea; }
+        .footer { background: #1a1a2e; color: white; padding: 30px 0; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="/">
+                <i class="fas fa-hotel me-2"></i>ABC Hotel
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link px-3" href="#rooms">Phòng</a>
+                <a class="nav-link px-3" href="#services">Dịch vụ</a>
+                <a class="nav-link px-3" href="#contact">Liên hệ</a>
+                <a href="/step1" class="btn btn-light ms-3 rounded-pill px-4">
+                    <i class="fas fa-calendar-check me-2"></i>Đặt phòng
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">Chào mừng đến khách sạn Đại Bàng</h1>
+            <p class="lead mb-5 fs-4">Trải nghiệm lưu trú tuyệt vời tại trung tâm thành phố</p>
+            
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <i class="fas fa-bed fa-3x mb-3"></i>
+                        <div class="stat-number" th:text="${availableRooms}">10</div>
+                        <div>Phòng trống</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <div class="stat-number" th:text="${occupiedRooms}">5</div>
+                        <div>Đã đặt</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-box">
+                        <i class="fas fa-star fa-3x mb-3"></i>
+                        <div class="stat-number">4.8</div>
+                        <div>Đánh giá</div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="/step1" class="btn btn-light btn-lg rounded-pill px-5 mt-4">
+                <i class="fas fa-calendar-plus me-2"></i>Đặt phòng ngay
+            </a>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="container">
+        <div class="booking-card mb-5">
+            <h4 class="mb-4 text-center"><i class="fas fa-search me-2"></i>Tìm phòng nhanh</h4>
+            <form action="/step2/check" method="post">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Ngày đến</label>
+                        <input type="date" class="form-control form-control-lg" name="checkIn" required th:value="${#temporals.createToday().plusDays(1)}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ngày đi</label>
+                        <input type="date" class="form-control form-control-lg" name="checkOut" required th:value="${#temporals.createToday().plusDays(3)}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Số khách</label>
+                        <input type="number" class="form-control form-control-lg" name="guests" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Loại phòng</label>
+                        <select class="form-select form-select-lg" name="roomType">
+                            <option value="Single">Single - 500K</option>
+                            <option value="Double" selected>Double - 850K</option>
+                            <option value="Triple">Triple - 1.2M</option>
+                            <option value="Suite">Suite - 1.5M</option>
+                            <option value="VIP Suite">VIP Suite - 2.5M</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Room Types -->
+    <div class="container mb-5" id="rooms">
+        <h2 class="text-center mb-5"><i class="fas fa-door-open me-2"></i>Các loại phòng</h2>
+        <div class="row">
+            <div th:each="room : ${rooms}" class="col-lg-3 col-md-4 mb-4">
+                <div class="card room-card h-100">
+                    <div class="room-img">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title" th:text="${room.roomId}">R101</h5>
+                        <span class="badge bg-primary mb-2" th:text="${room.roomType}">Double</span>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-user me-1"></i>Tối đa <span th:text="${room.capacity}">2</span> khách<br>
+                            <i class="fas fa-layer-group me-1"></i>Tầng <span th:text="${room.floor}">1</span>
+                        </p>
+                        <div class="price-tag mb-2">
+                            <span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">850,000</span> VND
+                            <small class="text-muted">/đêm</small>
+                        </div>
+                        <div th:if="${room.status.name() == 'AVAILABLE'}" class="mb-2">
+                            <span class="badge bg-success">✓ Còn trống</span>
+                        </div>
+                        <div th:if="${room.status.name() != 'AVAILABLE'}" class="mb-2">
+                            <span class="badge bg-secondary">Đã đặt</span>
+                        </div>
+                        <a th:href="@{/step1}" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-calendar-check me-1"></i>Đặt phòng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services -->
+    <div class="bg-white py-5" id="services">
+        <div class="container">
+            <h2 class="text-center mb-5"><i class="fas fa-concierge-bell me-2"></i>Dịch vụ của chúng tôi</h2>
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-wifi fa-4x text-primary mb-3"></i>
+                        <h5>Wifi miễn phí</h5>
+                        <p class="text-muted">Kết nối internet tốc độ cao</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-parking fa-4x text-primary mb-3"></i>
+                        <h5>Bãi đỗ xe</h5>
+                        <p class="text-muted">Miễn phí cho khách lưu trú</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-utensils fa-4x text-primary mb-3"></i>
+                        <h5>Nhà hàng</h5>
+                        <p class="text-muted">Phục vụ 24/7</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-spa fa-4x text-primary mb-3"></i>
+                        <h5>Spa & Massage</h5>
+                        <p class="text-muted">Thư giãn sau ngày dài</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="container py-5" id="contact">
+        <div class="row">
+            <div class="col-md-6">
+                <h3><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ</h3>
+                <p class="lead">123 Đường ABC, Quận 1, TP.HCM</p>
+                <p><i class="fas fa-phone me-2"></i>Hotline: 1900 1234</p>
+                <p><i class="fas fa-envelope me-2"></i>Email: info@abchotel.com</p>
+            </div>
+            <div class="col-md-6 text-center">
+                <a href="/step1" class="btn btn-booking text-white">
+                    <i class="fas fa-calendar-check me-2"></i>Đặt phòng ngay
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer text-center">
+        <div class="container">
+            <p class="mb-0">© 2024 ABC Hotel - Nhóm 8 Lập Trình Nâng Cao</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

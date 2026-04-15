@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận đặt phòng - ABC Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1a1a2e !important; }
+        .booking-card { background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 40px; margin: 30px auto; max-width: 900px; }
+        .room-card { border: 2px solid #e0e0e0; border-radius: 15px; transition: all 0.3s; cursor: pointer; }
+        .room-card:hover { border-color: #667eea; transform: translateY(-3px); }
+        .room-card.selected { border-color: #667eea; background: #f0f4ff; }
+        .price-tag { font-size: 1.5rem; font-weight: bold; color: #667eea; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-hotel me-2"></i>ABC Hotel
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Trang chủ</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="booking-card">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-check-circle me-2 text-success"></i>Xác nhận đặt phòng
+            </h2>
+
+            <!-- Customer Info -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="text-primary"><i class="fas fa-user me-2"></i>Thông tin khách</h5>
+                    <p><strong>Tên:</strong> <span th:text="${guestName}">-</span></p>
+                    <p><strong>Điện thoại:</strong> <span th:text="${phone}">-</span></p>
+                    <p><strong>Email:</strong> <span th:text="${email}">-</span></p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-primary"><i class="fas fa-calendar me-2"></i>Thông tin lưu trú</h5>
+                    <p><strong>Ngày đến:</strong> <span th:text="${checkIn}">-</span></p>
+                    <p><strong>Ngày đi:</strong> <span th:text="${checkOut}">-</span></p>
+                    <p><strong>Số đêm:</strong> <span th:text="${nights}">-</span></p>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Select Room -->
+            <h5 class="mb-3"><i class="fas fa-bed me-2"></i>Chọn phòng</h5>
+            <div th:if="${availableRooms.isEmpty()}" class="alert alert-warning">
+                Không có phòng trống cho yêu cầu này!
+            </div>
+            
+            <form action="/step1/book" method="post" id="bookingForm">
+                <input type="hidden" name="guestName" th:value="${guestName}">
+                <input type="hidden" name="registrantName" th:value="${registrantName}">
+                <input type="hidden" name="address" th:value="${address}">
+                <input type="hidden" name="phone" th:value="${phone}">
+                <input type="hidden" name="fax" th:value="${fax}">
+                <input type="hidden" name="email" th:value="${email}">
+                <input type="hidden" name="numberOfGuests" th:value="${numberOfGuests}">
+                <input type="hidden" name="checkIn" th:value="${checkIn}">
+                <input type="hidden" name="checkOut" th:value="${checkOut}">
+                <input type="hidden" name="roomType" th:value="${roomType}">
+                <input type="hidden" name="numberOfRooms" th:value="${numberOfRooms}">
+                <input type="hidden" name="paymentMethod" th:value="${paymentMethod}">
+                <input type="hidden" name="reservationType" th:value="${reservationType}">
+                <input type="hidden" name="bookingSource" th:value="${bookingSource}">
+                <input type="hidden" name="specialRequests" th:value="${specialRequests}">
+                <input type="hidden" name="roomId" id="selectedRoomId">
+
+                <div class="row">
+                    <div th:each="room : ${availableRooms}" class="col-md-4 mb-3">
+                        <div class="card room-card p-3" th:data-room-id="${room.roomId}" onclick="selectRoom(this)">
+                            <h4 class="mb-2" th:text="${room.roomId}">R101</h4>
+                            <span class="badge bg-primary mb-2" th:text="${room.roomType}">Double</span>
+                            <p class="mb-1"><small>Tầng <span th:text="${room.floor}">1</span> | Tối đa <span th:text="${room.capacity}">2</span> khách</small></p>
+                            <div class="price-tag">
+                                <span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">850,000</span> VND
+                            </div>
+                            <small class="text-muted">/đêm</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3" th:if="${!availableRooms.isEmpty()}">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Tổng tiền: <strong class="text-danger" th:text="${#numbers.formatDecimal(totalPrice, 0, 0)}">0</strong> VND 
+                    cho <span th:text="${nights}">0</span> đêm
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/step1" class="btn btn-secondary btn-lg me-3 px-5">Quay lại</a>
+                    <button type="submit" class="btn btn-success btn-lg px-5" id="confirmBtn" disabled>
+                        <i class="fas fa-check me-2"></i>Xác nhận đặt phòng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectRoom(element) {
+            document.querySelectorAll('.room-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('selectedRoomId').value = element.dataset.roomId;
+            document.getElementById('confirmBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>

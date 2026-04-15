@@ -10,6 +10,8 @@ public class Guest {
     private String email;
     private String address;
     private String idNumber;        // CMND / Hộ chiếu
+    private String fax;
+    private String registrantName;  // Người đăng ký (nếu khác khách)
 
     // ── Blacklist ────────────────────────────────────────────────────────────
     private boolean blacklisted;
@@ -28,6 +30,10 @@ public class Guest {
         this.idNumber  = idNumber;
         this.blacklisted = false;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public Guest(String fullName, String phone, String email, String address) {
+        this(null, fullName, phone, email, address, "");
     }
 
     // ── Blacklist operations ─────────────────────────────────────────────────
@@ -49,6 +55,7 @@ public class Guest {
     // ── Getters & Setters ────────────────────────────────────────────────────
 
     public String getGuestId()              { return guestId; }
+    public void   setGuestId(String v)      { this.guestId = v; }
     public String getFullName()             { return fullName; }
     public void   setFullName(String v)     { this.fullName = v; }
     public String getPhone()                { return phone; }
@@ -59,6 +66,10 @@ public class Guest {
     public void   setAddress(String v)      { this.address = v; }
     public String getIdNumber()             { return idNumber; }
     public void   setIdNumber(String v)     { this.idNumber = v; }
+    public String getFax()                  { return fax; }
+    public void   setFax(String v)          { this.fax = v; }
+    public String getRegistrantName()       { return registrantName; }
+    public void   setRegistrantName(String v) { this.registrantName = v; }
     public String getBlacklistReason()      { return blacklistReason; }
     public LocalDateTime getBlacklistedAt() { return blacklistedAt; }
     public LocalDateTime getCreatedAt()     { return createdAt; }

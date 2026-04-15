@@ -44,6 +44,14 @@ public class Reservation {
     public Reservation(String reservationId, Guest guest, Room room,
                        LocalDate checkInDate, LocalDate checkOutDate,
                        int numberOfGuests, ReservationType reservationType,
+                       BookingSource bookingSource, String paymentMethod) {
+        this(reservationId, guest, room, checkInDate, checkOutDate,
+             numberOfGuests, reservationType, bookingSource, paymentMethod, "SYSTEM");
+    }
+
+    public Reservation(String reservationId, Guest guest, Room room,
+                       LocalDate checkInDate, LocalDate checkOutDate,
+                       int numberOfGuests, ReservationType reservationType,
                        BookingSource bookingSource, String paymentMethod,
                        String createdBy) {
         this.reservationId   = reservationId;
@@ -169,6 +177,7 @@ public class Reservation {
     public ReservationType   getReservationType()            { return reservationType; }
     public void              setReservationType(ReservationType v) { this.reservationType = v; }
     public ReservationStatus getStatus()                     { return status; }
+    public void              setStatus(ReservationStatus v)  { this.status = v; }
     public BookingSource     getBookingSource()              { return bookingSource; }
     public double            getPricePerNight()              { return pricePerNight; }
     public void              setPricePerNight(double v)      { this.pricePerNight = v; }
