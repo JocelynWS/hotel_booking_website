@@ -3,81 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đặt buồng thành công - Nhóm 8</title>
+    <title>Đặt phòng thành công - Đại Bàng Hotel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; }
-        .success-card { border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        .success-icon { width: 100px; height: 100px; border-radius: 50%; background: #28a745; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 3rem; }
+        :root {
+            --navy: #003c71;
+            --orange: #ff8c00;
+            --teal: #26bed6;
+            --light-bg: #f2f7fa;
+            --border: #dde0e4;
+        }
+        body { background: var(--light-bg); min-height: 100vh; display: flex; align-items: center; font-family: 'Segoe UI', sans-serif; }
+        .success-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.1); padding: 40px; max-width: 700px; margin: 0 auto; }
+        .success-icon { width: 80px; height: 80px; border-radius: 50%; background: #30a730; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2.5rem; }
+        .detail-table td { padding: 8px 12px; font-size: 14px; }
+        .detail-table .label { color: #828282; font-weight: 500; width: 160px; }
+        .detail-table .value { font-weight: 600; color: var(--navy); }
+        .total-row { border-top: 2px solid var(--orange); }
+        .total-row .value { font-size: 22px; color: var(--orange); font-weight: 700; }
+        .badge-guaranteed { background: #30a730; color: #fff; }
+        .badge-non-guaranteed { background: var(--orange); color: #fff; }
+        .section-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--orange); display: inline-block; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card success-card p-5 text-center">
-            <div class="success-icon mb-4">✓</div>
-            <h1 class="display-4 text-success mb-3">Đặt Buồng Thành Công!</h1>
-            <p class="lead text-muted mb-4">Cảm ơn quý khách đã đặt phòng tại khách sạn của chúng tôi</p>
-
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="bg-light p-4 rounded-3 text-start">
-                        <h4 class="mb-3"><i class="fas fa-ticket-alt me-2 text-primary"></i>Thông tin đặt buồng</h4>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td class="fw-bold">Mã đặt buồng:</td>
-                                <td class="text-primary fw-bold fs-5" th:text="${reservation.reservationId}">RES001</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Khách hàng:</td>
-                                <td th:text="${guest.fullName}">-</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Điện thoại:</td>
-                                <td th:text="${guest.phone}">-</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Phòng:</td>
-                                <td>
-                                    <span class="badge bg-primary" th:text="${room.roomId}">R101</span>
-                                    <span th:text="${room.roomType}">Double</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Ngày đến:</td>
-                                <td th:text="${reservation.checkInDate}">2024-01-01</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Ngày đi:</td>
-                                <td th:text="${reservation.checkOutDate}">2024-01-03</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">Số đêm:</td>
-                                <td th:text="${nights}">2</td>
-                            </tr>
-                        </table>
-
-                        <hr>
-                        <div class="text-end">
-                            <p class="mb-1">Tổng tiền:</p>
-                            <h2 class="text-danger mb-0" th:text="${#numbers.formatDecimal(totalPrice, 0, 0)} + ' VND'">0 VND</h2>
-                        </div>
-                    </div>
-                </div>
+    <div class="container py-4">
+        <div class="success-card">
+            <div class="text-center mb-4">
+                <div class="success-icon mb-3"><i class="fas fa-check"></i></div>
+                <h2 style="color: #30a730; font-weight: 700;">Đặt phòng thành công!</h2>
+                <p class="text-muted">Cảm ơn quý khách đã đặt phòng tại Khách sạn Đại Bàng Hà Tĩnh</p>
             </div>
 
-            <div class="mt-4">
-                <i class="fas fa-envelope me-2"></i>Email xác nhận đã được gửi đến: <strong th:text="${guest.email}">email@example.com</strong>
+            <div class="section-title"><i class="fas fa-ticket-alt me-2"></i>Thông tin đặt phòng</div>
+            <table class="detail-table w-100 mb-4">
+                <tr>
+                    <td class="label">Mã đặt phòng:</td>
+                    <td class="value" style="font-size: 18px;" th:text="${reservation.reservationId}">RES000001</td>
+                </tr>
+                <tr>
+                    <td class="label">Khách hàng:</td>
+                    <td class="value" th:text="${guest.fullName}">-</td>
+                </tr>
+                <tr>
+                    <td class="label">Điện thoại:</td>
+                    <td class="value" th:text="${guest.phone}">-</td>
+                </tr>
+                <tr>
+                    <td class="label">Email:</td>
+                    <td class="value" th:text="${guest.email}">-</td>
+                </tr>
+            </table>
+
+            <div class="section-title"><i class="fas fa-bed me-2"></i>Thông tin lưu trú</div>
+            <table class="detail-table w-100 mb-4">
+                <tr>
+                    <td class="label">Phòng:</td>
+                    <td class="value">
+                        <span class="badge bg-primary me-1" th:text="${room.roomId}">R101</span>
+                        <span th:text="${room.roomType}">Double</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Tầng:</td>
+                    <td class="value" th:text="${room.floor}">1</td>
+                </tr>
+                <tr>
+                    <td class="label">Số khách tối đa:</td>
+                    <td class="value" th:text="${room.capacity}">2</td>
+                </tr>
+                <tr>
+                    <td class="label">Nhận phòng:</td>
+                    <td class="value" th:text="${reservation.checkInDate}">-</td>
+                </tr>
+                <tr>
+                    <td class="label">Trả phòng:</td>
+                    <td class="value" th:text="${reservation.checkOutDate}">-</td>
+                </tr>
+                <tr>
+                    <td class="label">Số đêm:</td>
+                    <td class="value" th:text="${nights}">2</td>
+                </tr>
+            </table>
+
+            <div class="section-title"><i class="fas fa-credit-card me-2"></i>Thanh toán</div>
+            <table class="detail-table w-100 mb-4">
+                <tr>
+                    <td class="label">Đơn giá:</td>
+                    <td class="value"><span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">850,000</span> VND/đêm</td>
+                </tr>
+                <tr>
+                    <td class="label">Hình thức đảm bảo:</td>
+                    <td class="value">
+                        <span th:if="${reservation.reservationType.name() == 'GUARANTEED'}" class="badge badge-guaranteed">Guaranteed - Có đảm bảo</span>
+                        <span th:if="${reservation.reservationType.name() == 'NON_GUARANTEED'}" class="badge badge-non-guaranteed">Non-Guaranteed - Không đảm bảo</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Hình thức thanh toán:</td>
+                    <td class="value" th:text="${reservation.paymentMethod}">-</td>
+                </tr>
+                <tr th:if="${transactionCode != null}">
+                    <td class="label">Mã giao dịch:</td>
+                    <td class="value" th:text="${transactionCode}">-</td>
+                </tr>
+                <tr>
+                    <td class="label">Nguồn đặt:</td>
+                    <td class="value" th:text="${reservation.bookingSource}">-</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="label" style="font-size: 16px; color: var(--navy);">Tổng tiền:</td>
+                    <td class="value"><span th:text="${#numbers.formatDecimal(totalPrice, 0, 0)}">1,700,000</span> VND</td>
+                </tr>
+            </table>
+
+            <div th:if="${reservation.specialRequests != null && !reservation.specialRequests.isEmpty()}" class="mb-3">
+                <div class="section-title"><i class="fas fa-comment me-2"></i>Yêu cầu đặc biệt</div>
+                <div class="p-3" style="background: #f0f4f8; border-radius: 6px; font-size: 14px; color: #4e4e4e;" th:text="${reservation.specialRequests}">-</div>
             </div>
 
-            <div class="d-grid gap-2 d-md-block mt-4">
-                <a href="/" class="btn btn-primary btn-lg me-md-2">
+            <div class="alert alert-info text-center" style="font-size: 14px;">
+                <i class="fas fa-envelope me-2"></i>Email xác nhận đã được gửi đến: <strong th:text="${guest.email}">-</strong>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-center mt-4">
+                <a href="/" class="btn btn-lg px-4" style="background: var(--navy); color: #fff;">
                     <i class="fas fa-home me-2"></i>Về trang chủ
                 </a>
-                <a href="/step1" class="btn btn-outline-primary btn-lg">
+                <a href="/step1" class="btn btn-lg px-4" style="background: var(--orange); color: #fff;">
                     <i class="fas fa-plus me-2"></i>Đặt thêm phòng
                 </a>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán - Đại Bàng Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #003c71;
+            --orange: #ff8c00;
+            --teal: #26bed6;
+            --light-bg: #f2f7fa;
+            --border: #dde0e4;
+        }
+        body { background: var(--light-bg); font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: var(--navy) !important; height: 64px; }
+        .navbar-brand { color: #fff !important; font-weight: 700; font-size: 1.3rem; }
+
+        .payment-container { max-width: 800px; margin: 40px auto; padding: 0 16px; }
+        .payment-card { background: #fff; border-radius: 8px; box-shadow: 0 0 4px rgba(0,0,0,.1); padding: 24px; margin-bottom: 16px; }
+        .payment-card h4 { font-weight: 700; color: var(--navy); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--orange); }
+
+        .order-summary { background: #fafbfc; border-radius: 6px; padding: 16px; }
+        .order-summary .row-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+        .order-summary .row-item .label { color: #828282; }
+        .order-summary .row-item .value { font-weight: 600; color: #4e4e4e; }
+        .order-summary .total { border-top: 2px solid var(--orange); margin-top: 8px; padding-top: 12px; }
+        .order-summary .total .value { font-size: 20px; color: var(--orange); font-weight: 700; }
+
+        .payment-methods { display: flex; gap: 12px; margin-bottom: 16px; }
+        .payment-method-btn {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all .2s;
+        }
+        .payment-method-btn:hover { border-color: var(--teal); }
+        .payment-method-btn.active { border-color: var(--orange); background: #fff8f0; }
+        .payment-method-btn i { font-size: 2rem; margin-bottom: 8px; display: block; }
+        .payment-method-btn .method-name { font-weight: 600; font-size: 14px; color: var(--navy); }
+
+        .bank-info { background: #f0f4f8; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+        .bank-info .bank-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+        .bank-info .bank-row .label { color: #828282; }
+        .bank-info .bank-row .value { font-weight: 600; color: var(--navy); }
+
+        .card-form .form-control { border: 1px solid var(--border); border-radius: 4px; height: 44px; }
+        .card-form .form-control:focus { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(38,190,214,.15); }
+        .card-form label { font-size: 13px; font-weight: 600; color: #4e4e4e; }
+
+        .transaction-input .form-control { border: 1px solid var(--border); border-radius: 4px; height: 44px; font-size: 16px; letter-spacing: 1px; }
+        .transaction-input .form-control:focus { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(255,140,0,.15); }
+
+        .btn-confirm { background: var(--orange); color: #fff; border: none; border-radius: 4px; padding: 12px 40px; font-weight: 700; font-size: 16px; transition: background .2s; }
+        .btn-confirm:hover { background: #e07800; color: #fff; }
+        .btn-back { background: #fff; color: var(--navy); border: 1px solid var(--border); border-radius: 4px; padding: 12px 40px; font-weight: 600; transition: all .2s; }
+        .btn-back:hover { background: #f5f5f5; }
+
+        .alert-notice { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px 16px; font-size: 14px; color: #856404; }
+        .alert-notice i { margin-right: 6px; }
+
+        .payment-section { display: none; }
+        .payment-section.active { display: block; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hotel me-2"></i>Đại Bàng Hotel
+        </a>
+        <a href="/" class="btn btn-sm btn-outline-light">
+            <i class="fas fa-home me-1"></i>Trang chủ
+        </a>
+    </div>
+</nav>
+
+<div class="payment-container">
+    <h3 class="text-center mb-4" style="color: var(--navy); font-weight: 700;">
+        <i class="fas fa-credit-card me-2" style="color: var(--orange);"></i>Thanh toán đặt phòng
+    </h3>
+
+    <!-- Order Summary -->
+    <div class="payment-card">
+        <h4><i class="fas fa-receipt me-2"></i>Thông tin đặt phòng</h4>
+        <div class="order-summary">
+            <div class="row-item">
+                <span class="label">Khách hàng</span>
+                <span class="value" th:text="${guestName}">-</span>
+            </div>
+            <div class="row-item">
+                <span class="label">Phòng</span>
+                <span class="value"><span th:text="${room.roomId}">R101</span> - <span th:text="${room.roomType}">Double</span></span>
+            </div>
+            <div class="row-item">
+                <span class="label">Nhận phòng</span>
+                <span class="value" th:text="${checkIn}">-</span>
+            </div>
+            <div class="row-item">
+                <span class="label">Trả phòng</span>
+                <span class="value" th:text="${checkOut}">-</span>
+            </div>
+            <div class="row-item">
+                <span class="label">Số đêm</span>
+                <span class="value" th:text="${nights}">1</span>
+            </div>
+            <div class="row-item">
+                <span class="label">Đơn giá</span>
+                <span class="value"><span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">850,000</span> VND/đêm</span>
+            </div>
+            <div class="row-item total">
+                <span class="label" style="font-weight: 700; color: var(--navy);">Tổng thanh toán</span>
+                <span class="value"><span th:text="${#numbers.formatDecimal(totalPrice, 0, 0)}">850,000</span> VND</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Method Selection -->
+    <div class="payment-card">
+        <h4><i class="fas fa-wallet me-2"></i>Phương thức thanh toán</h4>
+
+        <div class="payment-methods">
+            <div class="payment-method-btn active" onclick="selectMethod('bank')" id="btn-bank">
+                <i class="fas fa-university" style="color: var(--navy);"></i>
+                <div class="method-name">Chuyển khoản</div>
+            </div>
+            <div class="payment-method-btn" onclick="selectMethod('card')" id="btn-card">
+                <i class="fas fa-credit-card" style="color: var(--teal);"></i>
+                <div class="method-name">Thẻ tín dụng</div>
+            </div>
+            <div class="payment-method-btn" onclick="selectMethod('ewallet')" id="btn-ewallet">
+                <i class="fas fa-mobile-alt" style="color: var(--orange);"></i>
+                <div class="method-name">Ví điện tử</div>
+            </div>
+        </div>
+
+        <!-- Bank Transfer Section -->
+        <div class="payment-section active" id="section-bank">
+            <div class="alert-notice">
+                <i class="fas fa-info-circle"></i>
+                Vui lòng chuyển khoản theo thông tin bên dưới, sau đó nhập mã giao dịch để xác nhận.
+            </div>
+            <div class="bank-info mt-3">
+                <div class="bank-row">
+                    <span class="label">Ngân hàng</span>
+                    <span class="value">Vietcombank - Hà Tĩnh</span>
+                </div>
+                <div class="bank-row">
+                    <span class="label">Số tài khoản</span>
+                    <span class="value">0451 000 123 456</span>
+                </div>
+                <div class="bank-row">
+                    <span class="label">Chủ tài khoản</span>
+                    <span class="value">KS ĐẠI BÀNG HÀ TĨNH</span>
+                </div>
+                <div class="bank-row">
+                    <span class="label">Số tiền</span>
+                    <span class="value" style="color: var(--orange); font-size: 16px;" th:text="${#numbers.formatDecimal(totalPrice, 0, 0)} + ' VND'">850,000 VND</span>
+                </div>
+                <div class="bank-row">
+                    <span class="label">Nội dung CK</span>
+                    <span class="value">[SDT] Dat phong [NGAY]</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credit Card Section -->
+        <div class="payment-section" id="section-card">
+            <div class="alert-notice">
+                <i class="fas fa-lock"></i>
+                Thông tin thẻ của bạn được bảo mật an toàn.
+            </div>
+            <div class="card-form mt-3">
+                <div class="mb-3">
+                    <label>Số thẻ</label>
+                    <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this)">
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label>Ngày hết hạn</label>
+                        <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                    </div>
+                    <div class="col-6">
+                        <label>CVV</label>
+                        <input type="password" class="form-control" placeholder="***" maxlength="3">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Tên chủ thẻ</label>
+                    <input type="text" class="form-control" placeholder="NGUYEN VAN A">
+                </div>
+            </div>
+        </div>
+
+        <!-- E-Wallet Section -->
+        <div class="payment-section" id="section-ewallet">
+            <div class="alert-notice">
+                <i class="fas fa-qrcode"></i>
+                Quét mã QR bằng ứng dụng ví điện tử để thanh toán.
+            </div>
+            <div class="text-center mt-3">
+                <div style="width: 200px; height: 200px; background: #fff; border: 2px solid var(--border); border-radius: 8px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-qrcode fa-5x" style="color: var(--navy);"></i>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <span class="badge bg-primary p-2">MoMo</span>
+                    <span class="badge bg-success p-2">ZaloPay</span>
+                    <span class="badge bg-danger p-2">VNPay</span>
+                    <span class="badge bg-info p-2">ShopeePay</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Code -->
+    <div class="payment-card">
+        <h4><i class="fas fa-hashtag me-2"></i>Xác nhận giao dịch</h4>
+        <form action="/payment/confirm" method="post">
+            <input type="hidden" name="guestName" th:value="${guestName}">
+            <input type="hidden" name="registrantName" th:value="${registrantName}">
+            <input type="hidden" name="address" th:value="${address}">
+            <input type="hidden" name="phone" th:value="${phone}">
+            <input type="hidden" name="fax" th:value="${fax}">
+            <input type="hidden" name="email" th:value="${email}">
+            <input type="hidden" name="numberOfGuests" th:value="${numberOfGuests}">
+            <input type="hidden" name="checkIn" th:value="${checkIn}">
+            <input type="hidden" name="checkOut" th:value="${checkOut}">
+            <input type="hidden" name="roomId" th:value="${roomId}">
+            <input type="hidden" name="roomType" th:value="${roomType}">
+            <input type="hidden" name="paymentMethod" th:value="${paymentMethod}">
+            <input type="hidden" name="reservationType" th:value="${reservationType}">
+            <input type="hidden" name="bookingSource" th:value="${bookingSource}">
+            <input type="hidden" name="specialRequests" th:value="${specialRequests}">
+            <input type="hidden" name="selectedPaymentMethod" id="selectedPaymentMethod" th:value="${paymentMethod}">
+
+            <div class="transaction-input">
+                <label class="form-label fw-bold">Mã giao dịch / Mã tham chiếu</label>
+                <input type="text" class="form-control" name="transactionCode" placeholder="Nhập mã giao dịch sau khi thanh toán..." required>
+                <small class="text-muted">Mã giao dịch bạn nhận được từ ngân hàng / ví điện tử</small>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="/step1" class="btn btn-back me-2">
+                    <i class="fas fa-arrow-left me-1"></i>Quay lại
+                </a>
+                <button type="submit" class="btn btn-confirm">
+                    <i class="fas fa-check me-1"></i>Xác nhận thanh toán
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentMethod = 'bank';
+
+    function selectMethod(method) {
+        currentMethod = method;
+        document.querySelectorAll('.payment-method-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.payment-section').forEach(section => section.classList.remove('active'));
+
+        document.getElementById('btn-' + method).classList.add('active');
+        document.getElementById('section-' + method).classList.add('active');
+
+        const methodNames = { bank: 'Chuyển khoản', card: 'Thẻ tín dụng', ewallet: 'Ví điện tử' };
+        document.getElementById('selectedPaymentMethod').value = methodNames[method];
+    }
+
+    function formatCardNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        let formatted = value.match(/.{1,4}/g);
+        input.value = formatted ? formatted.join(' ') : '';
+    }
+
+    function formatExpiry(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2);
+        }
+        input.value = value;
+    }
+</script>
+</body>
+</html>

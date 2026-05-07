@@ -20,14 +20,24 @@ public class HotelRepository {
     private void initializeSampleData() {
         rooms.add(new Room("R101", "Single", 500_000, 1, 1));
         rooms.add(new Room("R102", "Single", 500_000, 1, 1));
-        rooms.add(new Room("R103", "Double", 850_000, 1, 2));
-        rooms.add(new Room("R104", "Double", 850_000, 1, 2));
-        rooms.add(new Room("R105", "Double", 900_000, 1, 2));
+        rooms.add(new Room("R103", "Single", 550_000, 1, 1));
+        rooms.add(new Room("R104", "Single", 550_000, 1, 1));
+        rooms.add(new Room("R105", "Double", 850_000, 1, 2));
+        rooms.add(new Room("R106", "Double", 850_000, 1, 2));
+        rooms.add(new Room("R107", "Double", 900_000, 1, 2));
+        rooms.add(new Room("R108", "Double", 900_000, 1, 2));
         rooms.add(new Room("R201", "Triple", 1_200_000, 2, 3));
         rooms.add(new Room("R202", "Triple", 1_200_000, 2, 3));
-        rooms.add(new Room("R203", "Suite", 1_500_000, 2, 4));
+        rooms.add(new Room("R203", "Triple", 1_300_000, 2, 3));
         rooms.add(new Room("R204", "Suite", 1_500_000, 2, 4));
+        rooms.add(new Room("R205", "Suite", 1_500_000, 2, 4));
+        rooms.add(new Room("R206", "Suite", 1_600_000, 2, 4));
+        rooms.add(new Room("R207", "Suite", 1_600_000, 2, 4));
         rooms.add(new Room("R301", "VIP Suite", 2_500_000, 3, 6));
+        rooms.add(new Room("R302", "VIP Suite", 2_500_000, 3, 6));
+        rooms.add(new Room("R303", "VIP Suite", 2_800_000, 3, 6));
+        rooms.add(new Room("R304", "VIP Suite", 2_800_000, 3, 6));
+        rooms.add(new Room("R305", "VIP Suite", 3_000_000, 3, 6));
     }
 
     // ═══════════════════════════════════════════════════════════════

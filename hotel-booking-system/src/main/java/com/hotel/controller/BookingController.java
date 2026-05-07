@@ -22,7 +22,74 @@ public class BookingController {
         model.addAttribute("availableRooms", repo.countAvailableRooms());
         model.addAttribute("occupiedRooms", repo.countOccupiedRooms());
         model.addAttribute("occupancyRate", repo.getOccupancyRate());
+
+        List<Map<String, Object>> roomTypeSummaries = new ArrayList<>();
+        List<Map<String, Object>> roomTypesList = new ArrayList<>();
+
+        List<String> allTypes = List.of("Single", "Double", "Triple", "Suite", "VIP Suite");
+        Map<String, String> typeDescriptions = Map.of(
+            "Single", "Phòng đơn tiện nghi, thích hợp cho khách đi công tác hoặc du lịch một mình",
+            "Double", "Phòng đôi rộng rãi với giường lớn, phù hợp cho cặp đôi hoặc gia đình nhỏ",
+            "Triple", "Phòng ba thoải mái, trang bị đầy đủ tiện nghi cho gia đình hoặc nhóm bạn",
+            "Suite", "Phòng suite sang trọng với khu vực tiếp khách riêng, tầm nhìn đẹp",
+            "VIP Suite", "Phòng VIP cao cấp nhất, không gian rộng lớn, tiện ích đẳng cấp 5 sao"
+        );
+        Map<String, String> typeIcons = Map.of(
+            "Single", "fa-user",
+            "Double", "fa-user-group",
+            "Triple", "fa-people-group",
+            "Suite", "fa-crown",
+            "VIP Suite", "fa-gem"
+        );
+        Map<String, List<String>> typeAmenities = Map.of(
+            "Single", List.of("Wifi miễn phí", "Điều hòa", "TV màn hình phẳng", "Phòng tắm riêng"),
+            "Double", List.of("Wifi miễn phí", "Điều hòa", "TV 43 inch", "Mini bar", "Phòng tắm riêng"),
+            "Triple", List.of("Wifi miễn phí", "Điều hòa", "TV 43 inch", "Mini bar", "Ban công", "Phòng tắm riêng"),
+            "Suite", List.of("Wifi miễn phí", "Điều hòa", "TV 55 inch", "Mini bar", "Ban công", "Phòng khách riêng", "Bồn tắm"),
+            "VIP Suite", List.of("Wifi miễn phí", "Điều hòa", "TV 65 inch", "Mini bar cao cấp", "Ban công panorama", "Phòng khách rộng", "Bồn tắm Jacuzzi", "Phòng xông hơi")
+        );
+
+        for (String type : allTypes) {
+            List<Room> typeRooms = repo.findRoomsByType(type);
+            if (typeRooms.isEmpty()) continue;
+
+            double minPrice = typeRooms.stream().mapToDouble(Room::getPricePerNight).min().orElse(0);
+            double maxPrice = typeRooms.stream().mapToDouble(Room::getPricePerNight).max().orElse(0);
+            long availableCount = typeRooms.stream().filter(Room::isAvailable).count();
+            int maxCapacity = typeRooms.stream().mapToInt(Room::getCapacity).max().orElse(0);
+
+            Map<String, Object> summary = new LinkedHashMap<>();
+            summary.put("roomType", type);
+            summary.put("description", typeDescriptions.getOrDefault(type, ""));
+            summary.put("icon", typeIcons.getOrDefault(type, "fa-bed"));
+            summary.put("amenities", typeAmenities.getOrDefault(type, List.of()));
+            summary.put("minPrice", minPrice);
+            summary.put("maxPrice", maxPrice);
+            summary.put("priceDisplay", minPrice == maxPrice
+                ? formatPrice(minPrice)
+                : formatPrice(minPrice) + " - " + formatPrice(maxPrice));
+            summary.put("availableCount", availableCount);
+            summary.put("totalCount", typeRooms.size());
+            summary.put("maxCapacity", maxCapacity);
+
+            roomTypeSummaries.add(summary);
+
+            Map<String, Object> typeOption = new LinkedHashMap<>();
+            typeOption.put("type", type);
+            typeOption.put("price", formatPrice(minPrice));
+            roomTypesList.add(typeOption);
+        }
+
+        model.addAttribute("roomTypeSummaries", roomTypeSummaries);
+        model.addAttribute("roomTypesForSelect", roomTypesList);
         return "index";
+    }
+
+    private String formatPrice(double price) {
+        if (price >= 1_000_000) {
+            return String.format("%.1f tr", price / 1_000_000);
+        }
+        return String.format("%,.0fđ", price);
     }
 
     @GetMapping("/step1")
@@ -115,11 +182,37 @@ public class BookingController {
         Guest guest = new Guest(guestName, phone, email, address);
         guest.setRegistrantName(registrantName);
         guest.setFax(fax);
-        repo.saveGuest(guest);
 
         Room room = repo.findRoomById(roomId).orElseThrow();
         ReservationType resType = reservationType.equals("Đảm bảo") ? ReservationType.GUARANTEED : ReservationType.NON_GUARANTEED;
         BookingSource source = BookingSource.valueOf(bookingSource.toUpperCase().replace(" ", "_"));
+
+        double totalPrice = room.getPricePerNight() * nights;
+
+        if (paymentMethod.equals("Chuyển khoản") || paymentMethod.equals("Thẻ tín dụng") || paymentMethod.equals("Ví điện tử")) {
+            model.addAttribute("guestName", guestName);
+            model.addAttribute("registrantName", registrantName);
+            model.addAttribute("address", address);
+            model.addAttribute("phone", phone);
+            model.addAttribute("fax", fax);
+            model.addAttribute("email", email);
+            model.addAttribute("numberOfGuests", numberOfGuests);
+            model.addAttribute("checkIn", checkIn);
+            model.addAttribute("checkOut", checkOut);
+            model.addAttribute("roomId", roomId);
+            model.addAttribute("roomType", roomType);
+            model.addAttribute("paymentMethod", paymentMethod);
+            model.addAttribute("reservationType", reservationType);
+            model.addAttribute("bookingSource", bookingSource);
+            model.addAttribute("specialRequests", specialRequests != null ? specialRequests : "");
+            model.addAttribute("room", room);
+            model.addAttribute("nights", nights);
+            model.addAttribute("totalPrice", totalPrice);
+
+            return "payment";
+        }
+
+        repo.saveGuest(guest);
 
         Reservation reservation = repo.createReservation(
                 guest, room, checkInDate, checkOutDate,
@@ -133,7 +226,60 @@ public class BookingController {
         model.addAttribute("guest", guest);
         model.addAttribute("room", room);
         model.addAttribute("nights", nights);
+        model.addAttribute("totalPrice", totalPrice);
+
+        return "success";
+    }
+
+    @PostMapping("/payment/confirm")
+    public String confirmPayment(
+            @RequestParam String guestName,
+            @RequestParam String registrantName,
+            @RequestParam String address,
+            @RequestParam String phone,
+            @RequestParam String fax,
+            @RequestParam String email,
+            @RequestParam int numberOfGuests,
+            @RequestParam String checkIn,
+            @RequestParam String checkOut,
+            @RequestParam String roomId,
+            @RequestParam String roomType,
+            @RequestParam String paymentMethod,
+            @RequestParam String reservationType,
+            @RequestParam String bookingSource,
+            @RequestParam String specialRequests,
+            @RequestParam String transactionCode,
+            Model model) {
+
+        LocalDate checkInDate = LocalDate.parse(checkIn);
+        LocalDate checkOutDate = LocalDate.parse(checkOut);
+        int nights = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+
+        Guest guest = new Guest(guestName, phone, email, address);
+        guest.setRegistrantName(registrantName);
+        guest.setFax(fax);
+        repo.saveGuest(guest);
+
+        Room room = repo.findRoomById(roomId).orElseThrow();
+        ReservationType resType = reservationType.equals("Đảm bảo") ? ReservationType.GUARANTEED : ReservationType.NON_GUARANTEED;
+        BookingSource source = BookingSource.valueOf(bookingSource.toUpperCase().replace(" ", "_"));
+
+        String paymentDetail = paymentMethod + " (Mã GD: " + transactionCode + ")";
+
+        Reservation reservation = repo.createReservation(
+                guest, room, checkInDate, checkOutDate,
+                numberOfGuests, resType, source,
+                paymentDetail, specialRequests
+        );
+
+        repo.updateRoomStatus(roomId, RoomStatus.OCCUPIED);
+
+        model.addAttribute("reservation", reservation);
+        model.addAttribute("guest", guest);
+        model.addAttribute("room", room);
+        model.addAttribute("nights", nights);
         model.addAttribute("totalPrice", room.getPricePerNight() * nights);
+        model.addAttribute("transactionCode", transactionCode);
 
         return "success";
     }
