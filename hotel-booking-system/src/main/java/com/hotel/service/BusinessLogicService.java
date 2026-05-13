@@ -1,11 +1,13 @@
 package com.hotel.service;
 
-import com.hotel.model.*;
-import com.hotel.repository.HotelRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import com.hotel.model.Guest;
+import com.hotel.model.Reservation;
+import com.hotel.model.ReservationStatus;
+import com.hotel.repository.HotelRepository;
 
 public class BusinessLogicService {
 
@@ -58,7 +60,7 @@ public class BusinessLogicService {
             // Nếu > 2 lần → tự động blacklist
             if (noShowCount > 2) {
                 guest.addToBlacklist("No-show quá " + noShowCount + " lần");
-                System.out.println("⚠️  Khách " + guest.getFullName()
+                System.out.println("  Khách " + guest.getFullName()
                         + " đã bị blacklist do no-show " + noShowCount + " lần!");
             }
         });

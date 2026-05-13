@@ -75,10 +75,10 @@ public class DatabaseManager {
             }
 
             writer.write("=== END ===");
-            System.out.println("✅ Đã lưu dữ liệu vào " + FILE_PATH);
+            System.out.println(" Đã lưu dữ liệu vào " + FILE_PATH);
 
         } catch (IOException e) {
-            System.err.println("❌ Lỗi khi ghi file: " + e.getMessage());
+            System.err.println(" Lỗi khi ghi file: " + e.getMessage());
         }
     }
 
@@ -89,7 +89,7 @@ public class DatabaseManager {
     public void loadAll() {
         File file = new File(FILE_PATH);
         if (!file.exists()) {
-            System.out.println("ℹ️  Chưa có file database.txt, bắt đầu với dữ liệu mới.");
+            System.out.println("  Chưa có file database.txt, bắt đầu với dữ liệu mới.");
             return;
         }
 
@@ -110,10 +110,10 @@ public class DatabaseManager {
                     loadReservation(line);
                 }
             }
-            System.out.println("✅ Đã tải dữ liệu từ " + FILE_PATH);
+            System.out.println(" Đã tải dữ liệu từ " + FILE_PATH);
 
         } catch (IOException e) {
-            System.err.println("❌ Lỗi khi đọc file: " + e.getMessage());
+            System.err.println(" Lỗi khi đọc file: " + e.getMessage());
         }
     }
 
@@ -130,7 +130,7 @@ public class DatabaseManager {
             }
             repository.saveGuest(g);
         } catch (Exception e) {
-            System.err.println("⚠️  Bỏ qua dòng GUEST lỗi: " + line);
+            System.err.println("  Bỏ qua dòng GUEST lỗi: " + line);
         }
     }
 

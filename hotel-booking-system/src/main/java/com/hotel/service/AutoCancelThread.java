@@ -1,9 +1,9 @@
 package com.hotel.service;
 
-import com.hotel.repository.HotelRepository;
-import com.hotel.model.Reservation;
-
 import java.util.List;
+
+import com.hotel.model.Reservation;
+import com.hotel.repository.HotelRepository;
 
 public class AutoCancelThread extends Thread {
 
@@ -27,7 +27,7 @@ public class AutoCancelThread extends Thread {
 
     @Override
     public void run() {
-        System.out.println("🔄 AutoCancelThread đã khởi động - Kiểm tra mỗi 1 phút");
+        System.out.println(" AutoCancelThread đã khởi động - Kiểm tra mỗi 1 phút");
         while (running) {
             try {
                 checkAndCancelExpiredBookings();
@@ -43,11 +43,11 @@ public class AutoCancelThread extends Thread {
         List<Reservation> expired = logicService.getExpiredPendingReservations(EXPIRE_MINUTES);
         if (expired.isEmpty()) return;
 
-        System.out.println("⏰ Tìm thấy " + expired.size() + " đơn PENDING quá 30 phút, đang hủy...");
+        System.out.println(" Tìm thấy " + expired.size() + " đơn PENDING quá 30 phút, đang hủy...");
         for (Reservation r : expired) {
             r.cancel("Hết thời gian xác nhận cọc (quá 30 phút)", "SYSTEM");
             repository.updateReservation(r);
-            System.out.println("❌ Đã hủy: " + r.getReservationId()
+            System.out.println(" Đã hủy: " + r.getReservationId()
                     + " - Khách: " + r.getGuest().getFullName());
         }
         dbManager.saveAll();
