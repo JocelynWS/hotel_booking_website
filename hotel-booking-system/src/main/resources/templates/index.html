@@ -154,7 +154,7 @@
                                 <div class="room-card__price-value" th:text="${room.priceLabel}" style="color: var(--orange);"></div>
                                 <div class="room-card__price-unit">VND/đêm</div>
                             </div>
-                            <a href="/step1" class="btn-room-book" th:if="${room.available}">Đặt ngay</a>
+                            <a th:href="@{/step1(roomType=${entry.key})}" class="btn-room-book" th:if="${room.available}">Đặt ngay</a>
                             <button class="btn-room-book disabled" th:unless="${room.available}" disabled>Đã đặt</button>
                         </div>
                     </div>

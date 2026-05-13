@@ -1,13 +1,19 @@
 package com.hotel.service;
 
-import com.hotel.model.*;
-import com.hotel.repository.HotelRepository;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+
+import com.hotel.model.BookingSource;
+import com.hotel.model.Guest;
+import com.hotel.model.Reservation;
+import com.hotel.model.ReservationType;
+import com.hotel.repository.HotelRepository;
 
 public class DatabaseManager {
 
@@ -146,7 +152,7 @@ public class DatabaseManager {
                 })
             );
         } catch (Exception e) {
-            System.err.println("⚠️  Bỏ qua dòng RESERVATION lỗi: " + line);
+            System.err.println(" Bỏ qua dòng RESERVATION lỗi: " + line);
         }
     }
 

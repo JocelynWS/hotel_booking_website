@@ -124,11 +124,33 @@ public class BookingController {
         return String.format("%,.0fđ", price);
     }
 
+    private List<String> getBookingRoomTypes() {
+        return List.of(
+            "Deluxe City View",
+            "Deluxe Triple City View",
+            "Executive Suite City View",
+            "Executive Twin City View",
+            "Presidential Suite"
+        );
+    }
+
+    private List<String> getPaymentMethods() {
+        return List.of("Tiền mặt", "Chuyển khoản", "Thẻ tín dụng", "Ví điện tử");
+    }
+
+    private List<String> getBookingSources() {
+        return List.of("Gặp trực tiếp", "Điện thoại", "Fax", "Email", "Internet");
+    }
+
     @GetMapping("/step1")
-    public String step1(Model model) {
-        model.addAttribute("roomTypes", List.of("Deluxe City View", "Deluxe Triple City View", "Executive Suite City View", "Executive Twin City View", "Presidential Suite"));
-        model.addAttribute("paymentMethods", List.of("Tiền mặt", "Chuyển khoản", "Thẻ tín dụng", "Ví điện tử"));
-        model.addAttribute("bookingSources", List.of("Gặp trực tiếp", "Điện thoại", "Fax", "Email", "Internet"));
+    public String step1(@RequestParam(required = false) String roomType, Model model) {
+        List<String> roomTypes = getBookingRoomTypes();
+        model.addAttribute("roomTypes", roomTypes);
+        model.addAttribute("paymentMethods", getPaymentMethods());
+        model.addAttribute("bookingSources", getBookingSources());
+        model.addAttribute("selectedRoomType", roomType == null ? roomTypes.get(0) : roomType);
+        model.addAttribute("checkInDefault", LocalDate.now().plusDays(1).toString());
+        model.addAttribute("checkOutDefault", LocalDate.now().plusDays(3).toString());
         return "step1";
     }
 
@@ -177,7 +199,24 @@ public class BookingController {
 
         if (availableRooms.isEmpty()) {
             model.addAttribute("error", "Không có phòng trống cho yêu cầu này!");
-            model.addAttribute("roomTypes", List.of("Single", "Double", "Triple", "Suite", "VIP Suite"));
+            model.addAttribute("roomTypes", getBookingRoomTypes());
+            model.addAttribute("paymentMethods", getPaymentMethods());
+            model.addAttribute("bookingSources", getBookingSources());
+            model.addAttribute("selectedRoomType", roomType);
+            model.addAttribute("checkIn", checkIn);
+            model.addAttribute("checkOut", checkOut);
+            model.addAttribute("numberOfGuests", numberOfGuests);
+            model.addAttribute("numberOfRooms", numberOfRooms);
+            model.addAttribute("paymentMethod", paymentMethod);
+            model.addAttribute("reservationType", reservationType);
+            model.addAttribute("bookingSource", bookingSource);
+            model.addAttribute("guestName", guestName);
+            model.addAttribute("phone", phone);
+            model.addAttribute("email", email);
+            model.addAttribute("address", address);
+            model.addAttribute("fax", fax);
+            model.addAttribute("specialRequests", specialRequests);
+
             return "step1";
         }
 
