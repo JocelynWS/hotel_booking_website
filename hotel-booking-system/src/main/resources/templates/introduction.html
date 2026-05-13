@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu - Khách sạn Đại Bàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #003c71;
+            --orange: #ff8c00;
+            --teal: #26bed6;
+            --light-bg: #f2f7fa;
+        }
+        body { background: var(--light-bg); }
+        .navbar { background: var(--navy) !important; }
+        .navbar-brand { color: #fff !important; }
+        .nav-link { color: rgba(255,255,255,.85) !important; }
+        .nav-link:hover, .nav-link.active { color: var(--teal) !important; }
+        .hero-intro { background: url('/images/trang chủ 1.webp') center/cover; height: 300px; display: flex; align-items: center; justify-content: center; color: #fff; text-align: center; }
+        .intro-content { padding: 60px 0; background: #fff; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hotel me-2"></i>Đại Bàng Hotel
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/introduction">Giới thiệu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/booking">Đặt phòng</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/contact">Liên hệ</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Đăng nhập</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Đăng ký</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Lịch sử</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero-intro">
+    <div>
+        <h1>Giới thiệu về Khách sạn Đại Bàng</h1>
+        <p>Trải nghiệm dịch vụ lưu trú cao cấp tại Hà Tĩnh</p>
+    </div>
+</section>
+
+<section class="intro-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h2>Về chúng tôi</h2>
+                <p>Khách sạn Đại Bàng (Eagle Hotel) tọa lạc tại đường Trần Phú - tuyến đường trung tâm của Thành phố Hà Tĩnh. Khách sạn có chiều cao 18 tầng (cao thứ 2 thành phố), cung cấp 140 phòng lưu trú gồm 7 loại phòng: Deluxe King, Deluxe Twin, Executive Suite, Suite Family, Royal room, … với trang thiết bị sang trọng hiện đại.</p>
+                <p>Phòng nghỉ có thiết kế đặc biệt, hệ thống vách kính tạo không gian mở, du khách có thể hòa mình vào thiên nhiên và thu vào tầm mắt những cảnh tuyệt đẹp từ trên cao.</p>
+                <h3>Tiện nghi & Dịch vụ</h3>
+                <ul>
+                    <li>Hồ bơi ngoài trời</li>
+                    <li>Phòng gym</li>
+                    <li>Spa cao cấp</li>
+                    <li>Nhà hàng Âu Á</li>
+                    <li>Phòng hội nghị</li>
+                    <li>Wifi miễn phí</li>
+                </ul>
+                <h3>Vị trí</h3>
+                <p>Dễ dàng di chuyển đến các điểm du lịch như Thiên Cầm, biển Thạch Hải, di tích Nguyễn Du, v.v.</p>
+            </div>
+            <div class="col-lg-4">
+                <img src="/images/trang chủ 2.jpg" alt="Khách sạn" class="img-fluid rounded mb-3">
+                <img src="/images/trang chủ 3.jpg" alt="Phòng" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

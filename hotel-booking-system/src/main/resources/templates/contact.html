@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên hệ - Khách sạn Đại Bàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #003c71;
+            --orange: #ff8c00;
+            --teal: #26bed6;
+            --light-bg: #f2f7fa;
+        }
+        body { background: var(--light-bg); }
+        .navbar { background: var(--navy) !important; }
+        .navbar-brand { color: #fff !important; }
+        .nav-link { color: rgba(255,255,255,.85) !important; }
+        .nav-link:hover, .nav-link.active { color: var(--teal) !important; }
+        .contact-section { padding: 60px 0; background: #fff; }
+        .contact-info { margin-bottom: 30px; }
+        .contact-info h3 { color: var(--navy); }
+        .contact-form { background: var(--light-bg); padding: 30px; border-radius: 8px; }
+        .btn-submit { background: var(--orange); color: #fff; border: none; padding: 10px 30px; border-radius: 4px; }
+        .btn-submit:hover { background: #e07800; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hotel me-2"></i>Đại Bàng Hotel
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/introduction">Giới thiệu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/booking">Đặt phòng</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/contact">Liên hệ</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Đăng nhập</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Đăng ký</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Lịch sử</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="contact-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Liên hệ với chúng tôi</h2>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="contact-info">
+                    <h3>Thông tin liên hệ</h3>
+                    <p><i class="fas fa-phone"></i> Hotline: 1900 5454 40 - Giờ hành chính</p>
+                    <p><i class="fas fa-phone"></i> 1900 6365 40 - Từ 07:30 - 20:00</p>
+                    <p><i class="fas fa-phone"></i> 028 73030 588 - 028 3925 1055</p>
+                    <p><i class="fas fa-phone"></i> Hotline: 0916 605 353 - 24/7</p>
+                    <p><i class="fas fa-envelope"></i> Email: datphong@chudu24.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Tầng 10, số 60 Nguyễn Đình Chiểu, Phường Tân Định, Tp Hồ Chí Minh</p>
+                    <p><i class="fas fa-clock"></i> Giờ nhận phòng: 14:00 | Giờ trả phòng: 12:00</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="contact-form">
+                    <h3>Gửi tin nhắn</h3>
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Họ tên</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Tin nhắn</label>
+                            <textarea class="form-control" id="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Gửi tin nhắn</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

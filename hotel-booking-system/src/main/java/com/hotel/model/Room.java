@@ -40,6 +40,13 @@ public class Room {
     public String     getDescription()         { return description; }
     public void       setDescription(String v) { this.description = v; }
 
+    public String getPriceLabel() {
+        if (pricePerNight >= 1_000_000) {
+            return String.format(java.util.Locale.US, "%.1f triệu", pricePerNight / 1_000_000);
+        }
+        return String.format(java.util.Locale.US, "%,.0fđ", pricePerNight);
+    }
+
     @Override
     public String toString() {
         return String.format("Room{id='%s', type='%s', price=%.0f, status=%s}",

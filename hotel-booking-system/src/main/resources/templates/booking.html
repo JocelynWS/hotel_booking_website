@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt phòng - Khách sạn Đại Bàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #003c71;
+            --orange: #ff8c00;
+            --teal: #26bed6;
+            --light-bg: #f2f7fa;
+        }
+        body { background: var(--light-bg); }
+        .navbar { background: var(--navy) !important; }
+        .navbar-brand { color: #fff !important; }
+        .nav-link { color: rgba(255,255,255,.85) !important; }
+        .nav-link:hover, .nav-link.active { color: var(--teal) !important; }
+        .rooms-section { padding: 60px 0; }
+        .section-title { font-size: 2.5rem; color: var(--navy); margin-bottom: 40px; text-align: center; }
+        .room-card { background: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,.1); overflow: hidden; margin-bottom: 30px; }
+        .room-image { height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 3rem; }
+        .room-info { padding: 20px; }
+        .room-price { font-size: 1.5rem; color: var(--orange); font-weight: bold; }
+        .btn-book { background: var(--orange); color: #fff; border: none; padding: 10px 20px; border-radius: 4px; text-decoration: none; }
+        .btn-book:hover { background: #e07800; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hotel me-2"></i>Đại Bàng Hotel
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/introduction">Giới thiệu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/booking">Đặt phòng</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/contact">Liên hệ</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Đăng nhập</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Đăng ký</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Lịch sử</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="rooms-section">
+    <div class="container">
+        <h2 class="section-title">Đặt phòng khách sạn</h2>
+        <div class="row">
+            <div class="col-md-4" th:each="room : ${rooms}">
+                <div class="room-card">
+                    <div class="room-image">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="room-info">
+                        <h5 th:text="${room.roomType}"></h5>
+                        <p>Số người tối đa: <span th:text="${room.capacity}"></span></p>
+                        <p>Tầng: <span th:text="${room.floor}"></span></p>
+                        <p class="room-price" th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/đêm'"></p>
+                        <a href="/step1" class="btn-book">Đặt phòng</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <p>Tổng số phòng: <span th:text="${totalRooms}"></span></p>
+            <p>Phòng trống: <span th:text="${availableRooms}"></span></p>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

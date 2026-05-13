@@ -11,472 +11,200 @@
             --navy: #003c71;
             --orange: #ff8c00;
             --teal: #26bed6;
-            --light-bg: #f2f7fa;
+            --light-bg: #f4f8fb;
             --border: #dde0e4;
         }
         body { background: var(--light-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
-
-        .navbar { background: var(--navy) !important; height: 64px; }
-        .navbar-brand { color: #fff !important; font-weight: 700; font-size: 1.3rem; }
-        .nav-link { color: rgba(255,255,255,.85) !important; font-size: 15px; padding: 0 12px !important; transition: color .2s; }
+        .navbar { background: var(--navy) !important; min-height: 70px; position: sticky; top: 0; z-index: 1050; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .navbar-brand, .nav-link { color: #fff !important; }
+        .nav-link { font-size: 0.95rem; padding: 0.6rem 0.9rem !important; }
         .nav-link:hover, .nav-link.active { color: var(--teal) !important; }
-        .nav-link.active { position: relative; }
-        .nav-link.active::after { content: ''; position: absolute; bottom: -20px; left: 0; width: 100%; height: 2px; background: var(--orange); }
-        .header-phone { color: var(--orange); font-weight: 700; font-size: 1.1rem; }
-        .header-phone i { margin-right: 4px; }
-
-        .breadcrumb-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 0; }
-        .breadcrumb-bar a { color: var(--navy); text-decoration: none; font-size: 14px; }
-        .breadcrumb-bar a:hover { color: var(--teal); }
-        .breadcrumb-bar span { color: #828282; font-size: 14px; margin: 0 4px; }
-
-        .hotel-hero { background: #fff; padding: 24px 0 0; }
-        .hotel-hero h1 { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
-        .hotel-address { color: #828282; font-size: 14px; margin-bottom: 16px; }
-        .hotel-address i { color: var(--orange); margin-right: 4px; }
-        .btn-book-now { background: var(--orange); color: #fff; border: none; font-weight: 600; padding: 10px 28px; border-radius: 4px; font-size: 15px; transition: background .2s; text-decoration: none; display: inline-block; }
-        .btn-book-now:hover { background: #e07800; color: #fff; }
-        .hotel-gallery { position: relative; border-radius: 8px; overflow: hidden; margin-top: 16px; }
-        .gallery-main { height: 320px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 5rem; }
-        .gallery-thumbs { display: flex; gap: 4px; margin-top: 4px; }
-        .gallery-thumb { flex: 1; height: 72px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; opacity: .7; }
-        .gallery-thumb:hover { opacity: 1; }
-        .gallery-count { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,.6); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 13px; }
-
-        .hotel-desc { background: #fff; padding: 20px 24px; border-radius: 8px; margin-top: 16px; box-shadow: 0 0 4px rgba(0,0,0,.1); }
-        .hotel-desc p { font-size: 15px; line-height: 1.7; color: #4e4e4e; }
-
-        .search-bar { background: #fff; border-radius: 8px; padding: 20px; margin-top: 16px; box-shadow: 0 0 4px rgba(0,0,0,.1); }
-        .search-bar h5 { font-weight: 700; color: var(--navy); margin-bottom: 16px; }
-        .search-bar label { font-size: 13px; font-weight: 600; color: #4e4e4e; margin-bottom: 4px; }
-        .search-bar .form-control, .search-bar .form-select { border: 1px solid var(--border); border-radius: 4px; height: 44px; font-size: 14px; }
-        .search-bar .form-control:focus, .search-bar .form-select:focus { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(38,190,214,.15); }
-        .btn-search { background: var(--navy); color: #fff; border: none; border-radius: 4px; height: 44px; font-weight: 600; width: 100%; transition: background .2s; }
-        .btn-search:hover { background: #002d55; color: #fff; }
-
-        .rooms-section { padding: 24px 0 40px; }
-        .section-title { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--orange); display: inline-block; }
-
-        .room-row {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 4px rgba(0,0,0,.1);
-            margin-bottom: 16px;
-            overflow: hidden;
-            transition: box-shadow .2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .room-row:hover { box-shadow: 0 2px 12px rgba(0,0,0,.15); }
-        @media (min-width: 768px) {
-            .room-row { flex-direction: row; }
-        }
-
-        .room-row__image {
-            flex: 0 0 200px;
-            min-height: 180px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 3rem;
-            position: relative;
-        }
-        .room-row__image .room-badge {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: var(--orange);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 0 0 8px 0;
-        }
-        @media (max-width: 767px) {
-            .room-row__image { min-height: 140px; flex: 0 0 140px; }
-        }
-
-        .room-row__info {
-            flex: 1;
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .room-row__type {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--navy);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .room-row__type i { color: var(--orange); font-size: 16px; }
-        .room-row__desc {
-            font-size: 13px;
-            color: #828282;
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-        .room-row__meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-        .room-row__meta-item {
-            font-size: 13px;
-            color: #4e4e4e;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .room-row__meta-item i { color: var(--teal); font-size: 14px; }
-        .room-row__amenities {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .amenity-tag {
-            background: #f0f4f8;
-            color: #4e4e4e;
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .amenity-tag i { color: var(--teal); font-size: 11px; }
-
-        .room-row__pricing {
-            flex: 0 0 200px;
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-left: 1px solid var(--border);
-            background: #fafbfc;
-            text-align: center;
-        }
-        @media (max-width: 767px) {
-            .room-row__pricing {
-                border-left: none;
-                border-top: 1px solid var(--border);
-                flex-direction: row;
-                justify-content: space-between;
-                padding: 12px 20px;
-            }
-        }
-        .room-row__price {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--orange);
-            margin-bottom: 2px;
-        }
-        .room-row__price-note {
-            font-size: 12px;
-            color: #828282;
-            margin-bottom: 8px;
-        }
-        .room-row__available {
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        .room-row__available .count { font-weight: 700; }
-        .room-row__available.in-stock .count { color: #30a730; }
-        .room-row__available.low-stock .count { color: var(--orange); }
-        .room-row__available.out-stock .count { color: #e53935; }
-        .btn-room-book {
-            background: var(--orange);
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 24px;
-            font-weight: 600;
-            font-size: 14px;
-            text-decoration: none;
-            transition: background .2s;
-            display: inline-block;
-        }
-        .btn-room-book:hover { background: #e07800; color: #fff; }
-        .btn-room-book.disabled { background: #bdbdbd; pointer-events: none; }
-
-        .best-price-badge {
-            background: #e53935;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 3px;
-            margin-bottom: 6px;
-        }
-
-        .stats-bar { background: #fff; border-radius: 8px; padding: 16px; margin-top: 16px; box-shadow: 0 0 4px rgba(0,0,0,.1); }
-        .stat-item__number { font-size: 1.8rem; font-weight: 700; color: var(--navy); }
-        .stat-item__label { font-size: 13px; color: #828282; }
-
-        .contact-bar { background: var(--navy); color: #fff; padding: 12px 0; }
-        .contact-bar__phone { font-size: 1.4rem; font-weight: 700; color: var(--orange); text-decoration: none; }
-        .contact-bar__phone:hover { color: var(--teal); }
-        .contact-bar__time { font-size: 13px; color: rgba(255,255,255,.7); }
-
-        .footer { background: var(--navy); color: rgba(255,255,255,.7); padding: 24px 0; font-size: 14px; }
-        .footer a { color: var(--teal); text-decoration: none; }
+        .hero-section { position: relative; min-height: 540px; background: url('/images/trang chủ 1.webp') center/cover no-repeat; display: flex; align-items: center; }
+        .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+        .hero-content { position: relative; z-index: 1; color: #fff; padding: 3rem 1rem; max-width: 740px; }
+        .hero-content h1 { font-size: clamp(2.5rem, 4vw, 3.6rem); font-weight: 800; margin-bottom: 1rem; }
+        .hero-content p { font-size: 1.1rem; line-height: 1.8; max-width: 680px; }
+        .btn-hero { background: var(--orange); color: #fff; border: none; padding: 13px 34px; border-radius: 999px; font-size: 1rem; }
+        .btn-hero:hover { background: #e37800; }
+        .intro-section, .rooms-section, .contact-section, .services-section { padding: 60px 0; }
+        .intro-section { background: #fff; }
+        .intro-section h2, .rooms-section h2, .contact-section h2, .services-section h2 { font-size: 2.4rem; color: var(--navy); margin-bottom: 1rem; }
+        .intro-section p, .contact-section p, .services-section p { color: #4f4f4f; line-height: 1.7; }
+        .collapse-text p, .collapse-text ul { margin-bottom: 0.9rem; }
+        .room-type-section { background: #fff; border-radius: 16px; padding: 30px; margin-bottom: 32px; box-shadow: 0 8px 24px rgba(50,60,80,0.06); }
+        .room-type-title { font-size: 1.4rem; font-weight: 700; color: var(--navy); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; border-left: 4px solid var(--orange); padding-left: 16px; }
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+        .room-card { background: #f9fafb; border: 1px solid rgba(221,224,228,0.6); border-radius: 14px; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; }
+        .room-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(50,60,80,0.12); border-color: var(--teal); }
+        .room-card__image { position: relative; height: 180px; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .room-card__image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .room-card__badge { position: absolute; top: 12px; left: 12px; background: rgba(255,140,0,0.95); color: #fff; padding: 5px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+        .room-card__content { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+        .room-card__id { font-size: 0.85rem; color: #6b7280; font-weight: 600; background: #eef6fb; display: inline-block; padding: 4px 10px; border-radius: 6px; width: fit-content; }
+        .room-card__desc { color: #4f4f4f; font-size: 0.95rem; line-height: 1.5; flex: 1; }
+        .room-card__features { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .room-feature { background: #eef6fb; color: #2f4d70; font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; display: flex; align-items: center; gap: 4px; }
+        .room-feature i { font-size: 0.75rem; color: var(--teal); }
+        .room-card__footer { padding: 16px 20px; background: #fbfbfd; border-top: 1px solid rgba(221,224,228,0.6); display: flex; justify-content: space-between; align-items: center; }
+        .room-card__price { display: flex; flex-direction: column; align-items: flex-start; }
+        .room-card__price-value { font-size: 1.5rem; font-weight: 800; color: var(--orange); }
+        .room-card__price-unit { font-size: 0.75rem; color: #6b7280; }
+        .btn-room-book { background: var(--orange); color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-weight: 700; font-size: 0.9rem; transition: background 0.2s; }
+        .btn-room-book:hover { background: #e37800; }
+        .btn-room-book.disabled { background: #ccc; cursor: not-allowed; }
+        .section-title { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem; border-bottom: 3px solid var(--orange); display: inline-flex; padding-bottom: 6px; }
+        .services-grid .service-card { background: #fff; border-radius: 18px; border: 1px solid #edf2f7; padding: 24px 20px; text-align: center; transition: transform 0.25s ease; }
+        .services-grid .service-card:hover { transform: translateY(-4px); }
+        .services-grid i { font-size: 2rem; color: var(--teal); margin-bottom: 14px; }
+        .contact-section .contact-info p { margin-bottom: 0.85rem; }
+        .footer { background: var(--navy); color: rgba(255,255,255,0.78); padding: 26px 0; }
+        .footer a { color: var(--teal); }
         .footer a:hover { color: #fff; }
-
-        .text-navy { color: var(--navy) !important; }
-        .text-orange { color: var(--orange) !important; }
     </style>
 </head>
 <body>
-
-<div class="contact-bar">
-    <div class="container d-flex align-items-center justify-content-between">
-        <div>
-            <a class="contact-bar__phone" href="tel:19001234"><i class="fas fa-phone me-2"></i>1900 1234</a>
-            <div class="contact-bar__time">7h30 &rarr; 21h</div>
-        </div>
-        <div class="d-none d-md-flex align-items-center gap-3">
-            <a href="/" class="nav-link">Khách sạn</a>
-            <a href="#rooms" class="nav-link">Phòng</a>
-            <a href="#services" class="nav-link">Dịch vụ</a>
-            <a href="#contact" class="nav-link">Liên hệ</a>
-        </div>
-    </div>
-</div>
-
-<nav class="navbar navbar-expand-lg sticky-top">
+<nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/">
             <i class="fas fa-hotel me-2"></i>Đại Bàng Hotel
         </a>
-        <div class="d-flex align-items-center gap-3">
-            <a href="/step1" class="btn-book-now">
-                <i class="fas fa-calendar-check me-1"></i>Đặt phòng
-            </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#introduction">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#rooms">Đặt phòng</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#contact">Liên hệ</a></li>
+            </ul>
+            <ul class="navbar-nav mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="#">Đăng nhập</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Đăng ký</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Lịch sử</a></li>
+            </ul>
         </div>
     </div>
 </nav>
-
-<div class="breadcrumb-bar">
+<section class="hero-section">
+    <div class="hero-overlay"></div>
     <div class="container">
-        <a href="/">Trang chủ</a><span>/</span>
-        <a href="#">Việt Nam</a><span>/</span>
-        <span>Khách sạn Đại Bàng Hà Tĩnh</span>
+        <div class="hero-content">
+            <h1>Trải nghiệm lưu trú sang trọng tại Đại Bàng Hotel</h1>
+            <p>Khách sạn 5 sao tại trung tâm Hà Tĩnh với phòng đẹp, dịch vụ cao cấp, tiện nghi đầy đủ và không gian hiện đại.</p>
+            <div class="mt-4">
+                <a href="#rooms" class="btn btn-hero me-2">Xem phòng</a>
+                <a href="/#contact" class="btn btn-outline-light">Liên hệ</a>
+            </div>
+        </div>
     </div>
-</div>
-
-<div class="hotel-hero">
+</section>
+<section class="intro-section" id="introduction">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-5">
-                <h1>Khách sạn Đại Bàng Hà Tĩnh</h1>
-                <div class="hotel-address">
-                    <i class="fas fa-map-marker-alt"></i>
-                    268 Trần Phú, Khối phố 6, P. Nguyễn Du, Tp. Hà Tĩnh
+        <div class="row align-items-center gy-4">
+            <div class="col-lg-6">
+                <h2>Giới thiệu về Đại Bàng Hotel</h2>
+                <p>Khách sạn Đại Bàng tọa lạc tại trung tâm Hà Tĩnh, mang đến cho khách lưu trú 140 phòng hiện đại, thiết kế sang trọng và tầm nhìn thành phố rộng mở.</p>
+                <div class="collapse collapse-text" id="introDetails">
+                    <p>Khách sạn gồm 5 hạng phòng cao cấp, phục vụ khách du lịch và doanh nhân với trải nghiệm nghỉ dưỡng trọn vẹn cùng dịch vụ chuyên nghiệp.</p>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-check-circle text-orange me-2"></i>Hồ bơi ngoài trời, Sky bar và không gian lounge thư giãn.</li>
+                        <li><i class="fas fa-check-circle text-orange me-2"></i>Spa, phòng Gym, Karaoke, nhà hàng Âu Á và phòng hội nghị hiện đại.</li>
+                        <li><i class="fas fa-check-circle text-orange me-2"></i>Wifi miễn phí, bữa sáng buffet, minibar và dịch vụ phòng 24/7.</li>
+                        <li><i class="fas fa-check-circle text-orange me-2"></i>Vị trí thuận lợi gần trung tâm, giao thông và khu mua sắm.</li>
+                    </ul>
                 </div>
-                <a href="/step1" class="btn-book-now">
-                    <i class="fas fa-calendar-check me-1"></i>Đặt ngay
-                </a>
-
-                <div class="hotel-desc mt-3">
-                    <p>
-                        <strong>Khách sạn Đại Bàng Hà Tĩnh</strong> tọa lạc tại đường Trần Phú - tuyến đường trung tâm của Thành phố Hà Tĩnh.
-                        Cung cấp 140 phòng lưu trú gồm 7 loại phòng với trang thiết bị sang trọng hiện đại.
-                        Hệ thống giải trí với phòng Karaoke, Sky bar, Spa cao cấp, hồ bơi ngoài trời, hệ thống nhà hàng Âu Á...
-                    </p>
+                <button class="btn btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#introDetails" aria-expanded="false" aria-controls="introDetails">
+                    Xem thêm tiện nghi
+                </button>
+            </div>
+            <div class="col-lg-6">
+                <img src="/images/trang chủ 2.jpg" alt="Khách sạn Đại Bàng" class="img-fluid rounded shadow-sm">
+            </div>
+        </div>
+    </div>
+</section>
+<section class="rooms-section" id="rooms">
+    <div class="container">
+        <h2 class="section-title">Phòng của chúng tôi</h2>
+        <div th:each="entry : ${roomsByType}">
+            <div class="room-type-section">
+                <div class="room-type-title">
+                    <i class="fas fa-door-open"></i>
+                    <span th:text="${entry.key}"></span>
                 </div>
-
-                <div class="stats-bar mt-3">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <div class="stat-item__number" th:text="${totalRooms}">11</div>
-                            <div class="stat-item__label">Tổng số phòng</div>
+                <div class="room-grid">
+                    <div class="room-card" th:each="room : ${entry.value}">
+                        <div class="room-card__image">
+                            <img th:src="${typeImages[entry.key]}" th:attr="alt=${entry.key}">
+                            <div th:if="${room.available}" class="room-card__badge">Còn trống</div>
+                            <div th:unless="${room.available}" class="room-card__badge" style="background: #999;">Đã đặt</div>
                         </div>
-                        <div class="col-4">
-                            <div class="stat-item__number text-orange" th:text="${availableRooms}">10</div>
-                            <div class="stat-item__label">Phòng trống</div>
+                        <div class="room-card__content">
+                            <div class="room-card__id" th:text="'Phòng ' + ${room.roomId}"></div>
+                            <div class="room-card__desc" th:text="'Phòng ' + ${room.roomType} + ', tối đa ' + ${room.capacity} + ' khách'"></div>
+                            <div class="room-card__features">
+                                <span class="room-feature"><i class="fas fa-users"></i><span th:text="${room.capacity} + ' người'"></span></span>
+                                <span class="room-feature"><i class="fas fa-wifi"></i><span>Wifi</span></span>
+                                <span class="room-feature"><i class="fas fa-tv"></i><span>TV</span></span>
+                            </div>
                         </div>
-                        <div class="col-4">
-                            <div class="stat-item__number" th:text="${occupiedRooms}">1</div>
-                            <div class="stat-item__label">Đã đặt</div>
+                        <div class="room-card__footer">
+                            <div class="room-card__price">
+                                <div class="room-card__price-value" th:text="${room.priceLabel}" style="color: var(--orange);"></div>
+                                <div class="room-card__price-unit">VND/đêm</div>
+                            </div>
+                            <a href="/step1" class="btn-room-book" th:if="${room.available}">Đặt ngay</a>
+                            <button class="btn-room-book disabled" th:unless="${room.available}" disabled>Đã đặt</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-7 mt-3 mt-lg-0">
-                <div class="hotel-gallery">
-                    <div class="gallery-main"><i class="fas fa-hotel"></i></div>
-                    <div class="gallery-count"><i class="fas fa-camera me-1"></i>62 hình</div>
-                </div>
-                <div class="gallery-thumbs">
-                    <div class="gallery-thumb"><i class="fas fa-bed"></i></div>
-                    <div class="gallery-thumb"><i class="fas fa-bath"></i></div>
-                    <div class="gallery-thumb"><i class="fas fa-utensils"></i></div>
-                    <div class="gallery-thumb"><i class="fas fa-swimming-pool"></i></div>
-                    <div class="gallery-thumb"><i class="fas fa-spa"></i></div>
-                    <div class="gallery-thumb"><i class="fas fa-dumbbell"></i></div>
-                </div>
-            </div>
         </div>
     </div>
-</div>
-
-<div class="container">
-    <div class="search-bar">
-        <h5><i class="fas fa-search me-2"></i>Tìm phòng &amp; đặt phòng</h5>
-        <form action="/step2/check" method="post">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label>Ngày đến</label>
-                    <input type="date" class="form-control" name="checkIn" required th:value="${#temporals.createToday().plusDays(1)}">
-                </div>
-                <div class="col-md-3">
-                    <label>Ngày đi</label>
-                    <input type="date" class="form-control" name="checkOut" required th:value="${#temporals.createToday().plusDays(3)}">
-                </div>
-                <div class="col-md-2">
-                    <label>Số khách</label>
-                    <input type="number" class="form-control" name="guests" min="1" value="1" required>
-                </div>
-                <div class="col-md-3">
-                    <label>Loại phòng</label>
-                    <select class="form-select" name="roomType">
-                        <option th:each="rt : ${roomTypesForSelect}" th:value="${rt.type}" th:text="${rt.type + ' - Từ ' + rt.price}">Double - Từ 850.000đ</option>
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn-search"><i class="fas fa-search"></i></button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="rooms-section" id="rooms">
+</section>
+<section class="services-section">
     <div class="container">
-        <div class="section-title"><i class="fas fa-door-open me-2"></i>Chọn loại phòng</div>
-
-        <div th:each="summary : ${roomTypeSummaries}" class="room-row">
-            <div class="room-row__image">
-                <i class="fas" th:classappend="${summary.icon}"></i>
-                <div class="room-badge" th:if="${summary.availableCount > 0}">Giá tốt nhất</div>
+        <h2 class="section-title">Tiện ích khách sạn</h2>
+        <div class="row g-4 services-grid">
+            <div class="col-sm-6 col-lg-3">
+                <div class="service-card"><i class="fas fa-wifi"></i><h5>Wifi miễn phí</h5><p>Internet ổn định trong toàn khách sạn.</p></div>
             </div>
-
-            <div class="room-row__info">
-                <div class="room-row__type">
-                    <i class="fas" th:classappend="${summary.icon}"></i>
-                    <span th:text="${summary.roomType}">Double</span>
-                </div>
-                <div class="room-row__desc" th:text="${summary.description}">Phòng đôi rộng rãi...</div>
-                <div class="room-row__meta">
-                    <div class="room-row__meta-item">
-                        <i class="fas fa-user-group"></i>
-                        Tối đa <span th:text="${summary.maxCapacity}">2</span> khách
-                    </div>
-                    <div class="room-row__meta-item">
-                        <i class="fas fa-door-open"></i>
-                        <span th:text="${summary.totalCount}">3</span> phòng
-                    </div>
-                </div>
-                <div class="room-row__amenities">
-                    <span th:each="amenity : ${summary.amenities}" class="amenity-tag">
-                        <i class="fas fa-check"></i>
-                        <span th:text="${amenity}">Wifi miễn phí</span>
-                    </span>
-                </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="service-card"><i class="fas fa-utensils"></i><h5>Nhà hàng 24/7</h5><p>Ẩm thực Á - Âu phục vụ suốt ngày.</p></div>
             </div>
-
-            <div class="room-row__pricing">
-                <div class="best-price-badge">Giá tốt nhất</div>
-                <div class="room-row__price" th:text="${summary.priceDisplay}">850.000đ</div>
-                <div class="room-row__price-note">/đêm/phòng</div>
-                <div class="room-row__available"
-                     th:classappend="${summary.availableCount == 0} ? 'out-stock' : (${summary.availableCount <= 2} ? 'low-stock' : 'in-stock')">
-                    <span class="count" th:text="${summary.availableCount}">3</span>
-                    <span th:if="${summary.availableCount > 0}"> phòng trống / </span>
-                    <span th:if="${summary.availableCount == 0}"> đã hết / </span>
-                    <span th:text="${summary.totalCount}">3</span>
-                </div>
-                <a th:href="@{/step1}"
-                   th:class="${summary.availableCount == 0} ? 'btn-room-book disabled' : 'btn-room-book'">
-                    <i class="fas fa-calendar-check me-1"></i>
-                    <span th:if="${summary.availableCount > 0}">Đặt ngay</span>
-                    <span th:if="${summary.availableCount == 0}">Hết phòng</span>
-                </a>
+            <div class="col-sm-6 col-lg-3">
+                <div class="service-card"><i class="fas fa-swimmer"></i><h5>Hồ bơi ngoài trời</h5><p>Thư giãn và ngắm cảnh trên tầng thượng.</p></div>
             </div>
-        </div>
-
-        <div th:if="${roomTypeSummaries == null or roomTypeSummaries.isEmpty()}" class="alert alert-warning">
-            <i class="fas fa-info-circle me-2"></i>Chưa có thông tin loại phòng.
+            <div class="col-sm-6 col-lg-3">
+                <div class="service-card"><i class="fas fa-spa"></i><h5>Spa cao cấp</h5><p>Massage, sauna và chăm sóc cơ thể.</p></div>
+            </div>
         </div>
     </div>
-</div>
-
-<div class="bg-white py-4" id="services">
+</section>
+<section class="contact-section" id="contact">
     <div class="container">
-        <div class="section-title mb-4"><i class="fas fa-concierge-bell me-2"></i>Tiện ích &amp; Dịch vụ</div>
-        <div class="row text-center">
-            <div class="col-6 col-md-3 mb-3">
-                <div class="p-3">
-                    <i class="fas fa-wifi fa-3x" style="color: var(--teal)"></i>
-                    <h6 class="mt-2">Wifi miễn phí</h6>
-                    <p class="text-muted small mb-0">Internet tốc độ cao</p>
+        <div class="row gy-4">
+            <div class="col-lg-6">
+                <h2>Liên hệ với chúng tôi</h2>
+                <div class="contact-info">
+                    <p><i class="fas fa-phone me-2"></i>1900 5454 40</p>
+                    <p><i class="fas fa-envelope me-2"></i>datphong@daibanghotel.com</p>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>268 Trần Phú, P. Nguyễn Du, Tp. Hà Tĩnh</p>
+                    <p><i class="fas fa-clock me-2"></i>Phục vụ 24/7</p>
                 </div>
             </div>
-            <div class="col-6 col-md-3 mb-3">
-                <div class="p-3">
-                    <i class="fas fa-parking fa-3x" style="color: var(--teal)"></i>
-                    <h6 class="mt-2">Bãi đỗ xe</h6>
-                    <p class="text-muted small mb-0">Miễn phí cho khách</p>
-                </div>
-            </div>
-            <div class="col-6 col-md-3 mb-3">
-                <div class="p-3">
-                    <i class="fas fa-utensils fa-3x" style="color: var(--teal)"></i>
-                    <h6 class="mt-2">Nhà hàng</h6>
-                    <p class="text-muted small mb-0">Phục vụ 24/7</p>
-                </div>
-            </div>
-            <div class="col-6 col-md-3 mb-3">
-                <div class="p-3">
-                    <i class="fas fa-spa fa-3x" style="color: var(--teal)"></i>
-                    <h6 class="mt-2">Spa &amp; Massage</h6>
-                    <p class="text-muted small mb-0">Thư giãn tuyệt đối</p>
-                </div>
+            <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                <img src="/images/trang chủ 3.jpg" alt="Liên hệ" class="img-fluid rounded shadow-sm">
             </div>
         </div>
     </div>
-</div>
-
-<div class="container py-4" id="contact">
-    <div class="row">
-        <div class="col-md-6">
-            <h5 class="text-navy"><i class="fas fa-map-marker-alt me-2"></i>Liên hệ</h5>
-            <p class="lead">268 Trần Phú, P. Nguyễn Du, Tp. Hà Tĩnh</p>
-            <p><i class="fas fa-phone me-2 text-orange"></i>Hotline: 1900 1234</p>
-            <p><i class="fas fa-envelope me-2 text-orange"></i>Email: info@daibanghotel.com</p>
-        </div>
-        <div class="col-md-6 text-center d-flex align-items-center justify-content-center">
-            <a href="/step1" class="btn-book-now btn-lg">
-                <i class="fas fa-calendar-check me-2"></i>Đặt phòng ngay
-            </a>
-        </div>
-    </div>
-</div>
-
+</section>
 <footer class="footer text-center">
     <div class="container">
-        <p class="mb-0">&copy; 2024 Khách sạn Đại Bàng - Nhóm 8 Lập Trình Nâng Cao</p>
+        <p class="mb-0">&copy; 2024 Khách sạn Đại Bàng. Mọi quyền được bảo lưu.</p>
     </div>
 </footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

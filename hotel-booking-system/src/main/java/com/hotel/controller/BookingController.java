@@ -1,14 +1,27 @@
 package com.hotel.controller;
 
-import com.hotel.model.*;
-import com.hotel.repository.HotelRepository;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.hotel.model.BookingSource;
+import com.hotel.model.Guest;
+import com.hotel.model.Reservation;
+import com.hotel.model.ReservationType;
+import com.hotel.model.Room;
+import com.hotel.model.RoomStatus;
+import com.hotel.repository.HotelRepository;
 
 @Controller
 public class BookingController {
@@ -26,27 +39,34 @@ public class BookingController {
         List<Map<String, Object>> roomTypeSummaries = new ArrayList<>();
         List<Map<String, Object>> roomTypesList = new ArrayList<>();
 
-        List<String> allTypes = List.of("Single", "Double", "Triple", "Suite", "VIP Suite");
+        List<String> allTypes = List.of("Deluxe City View", "Deluxe Triple City View", "Executive Suite City View", "Executive Twin City View", "Presidential Suite");
         Map<String, String> typeDescriptions = Map.of(
-            "Single", "Phòng đơn tiện nghi, thích hợp cho khách đi công tác hoặc du lịch một mình",
-            "Double", "Phòng đôi rộng rãi với giường lớn, phù hợp cho cặp đôi hoặc gia đình nhỏ",
-            "Triple", "Phòng ba thoải mái, trang bị đầy đủ tiện nghi cho gia đình hoặc nhóm bạn",
-            "Suite", "Phòng suite sang trọng với khu vực tiếp khách riêng, tầm nhìn đẹp",
-            "VIP Suite", "Phòng VIP cao cấp nhất, không gian rộng lớn, tiện ích đẳng cấp 5 sao"
+            "Deluxe City View", "Phòng Deluxe hướng thành phố với tầm nhìn đẹp, tiện nghi hiện đại, bao gồm ăn sáng",
+            "Deluxe Triple City View", "Phòng Deluxe cho 3 khách hướng thành phố, rộng rãi và thoải mái, bao gồm ăn sáng",
+            "Executive Suite City View", "Suite Executive hướng thành phố sang trọng, không gian riêng tư, bao gồm ăn sáng",
+            "Executive Twin City View", "Suite Executive cho 3 khách hướng thành phố, thiết kế tinh tế, bao gồm ăn sáng",
+            "Presidential Suite", "Phòng Presidential Suite cao cấp nhất, không gian rộng lớn, tiện ích đẳng cấp, bao gồm ăn sáng"
         );
         Map<String, String> typeIcons = Map.of(
-            "Single", "fa-user",
-            "Double", "fa-user-group",
-            "Triple", "fa-people-group",
-            "Suite", "fa-crown",
-            "VIP Suite", "fa-gem"
+            "Deluxe City View", "fa-city",
+            "Deluxe Triple City View", "fa-users",
+            "Executive Suite City View", "fa-star",
+            "Executive Twin City View", "fa-users-gear",
+            "Presidential Suite", "fa-crown"
         );
         Map<String, List<String>> typeAmenities = Map.of(
-            "Single", List.of("Wifi miễn phí", "Điều hòa", "TV màn hình phẳng", "Phòng tắm riêng"),
-            "Double", List.of("Wifi miễn phí", "Điều hòa", "TV 43 inch", "Mini bar", "Phòng tắm riêng"),
-            "Triple", List.of("Wifi miễn phí", "Điều hòa", "TV 43 inch", "Mini bar", "Ban công", "Phòng tắm riêng"),
-            "Suite", List.of("Wifi miễn phí", "Điều hòa", "TV 55 inch", "Mini bar", "Ban công", "Phòng khách riêng", "Bồn tắm"),
-            "VIP Suite", List.of("Wifi miễn phí", "Điều hòa", "TV 65 inch", "Mini bar cao cấp", "Ban công panorama", "Phòng khách rộng", "Bồn tắm Jacuzzi", "Phòng xông hơi")
+            "Deluxe City View", List.of("Wifi miễn phí", "Điều hòa", "TV màn hình phẳng", "Ăn sáng miễn phí", "Phòng tắm riêng"),
+            "Deluxe Triple City View", List.of("Wifi miễn phí", "Điều hòa", "TV 43 inch", "Ăn sáng miễn phí", "Mini bar", "Phòng tắm riêng"),
+            "Executive Suite City View", List.of("Wifi miễn phí", "Điều hòa", "TV 55 inch", "Ăn sáng miễn phí", "Mini bar", "Ban công", "Phòng khách riêng"),
+            "Executive Twin City View", List.of("Wifi miễn phí", "Điều hòa", "TV 55 inch", "Ăn sáng miễn phí", "Mini bar", "Ban công", "Phòng khách riêng"),
+            "Presidential Suite", List.of("Wifi miễn phí", "Điều hòa", "TV 65 inch", "Ăn sáng miễn phí", "Mini bar cao cấp", "Ban công panorama", "Phòng khách rộng", "Bồn tắm Jacuzzi")
+        );
+        Map<String, String> typeImages = Map.of(
+            "Deluxe City View", "/images/deluxe-city-view.jpg",
+            "Deluxe Triple City View", "/images/duplex1.jpg",
+            "Executive Suite City View", "/images/executive-suite-city-view.jpg",
+            "Executive Twin City View", "/images/executive-twin-city-view.jpg",
+            "Presidential Suite", "/images/presidential-suite.jpg"
         );
 
         for (String type : allTypes) {
@@ -63,6 +83,7 @@ public class BookingController {
             summary.put("description", typeDescriptions.getOrDefault(type, ""));
             summary.put("icon", typeIcons.getOrDefault(type, "fa-bed"));
             summary.put("amenities", typeAmenities.getOrDefault(type, List.of()));
+            summary.put("image", typeImages.getOrDefault(type, "/images/deluxe-city-view.jpg"));
             summary.put("minPrice", minPrice);
             summary.put("maxPrice", maxPrice);
             summary.put("priceDisplay", minPrice == maxPrice
@@ -80,8 +101,19 @@ public class BookingController {
             roomTypesList.add(typeOption);
         }
 
+        // Build roomsByType: Map of room type -> list of actual Room objects
+        Map<String, List<Room>> roomsByType = new LinkedHashMap<>();
+        for (String type : allTypes) {
+            List<Room> typeRooms = repo.findRoomsByType(type);
+            if (!typeRooms.isEmpty()) {
+                roomsByType.put(type, typeRooms);
+            }
+        }
+        
         model.addAttribute("roomTypeSummaries", roomTypeSummaries);
         model.addAttribute("roomTypesForSelect", roomTypesList);
+        model.addAttribute("roomsByType", roomsByType);
+        model.addAttribute("typeImages", typeImages);
         return "index";
     }
 
@@ -94,10 +126,28 @@ public class BookingController {
 
     @GetMapping("/step1")
     public String step1(Model model) {
-        model.addAttribute("roomTypes", List.of("Single", "Double", "Triple", "Suite", "VIP Suite"));
+        model.addAttribute("roomTypes", List.of("Deluxe City View", "Deluxe Triple City View", "Executive Suite City View", "Executive Twin City View", "Presidential Suite"));
         model.addAttribute("paymentMethods", List.of("Tiền mặt", "Chuyển khoản", "Thẻ tín dụng", "Ví điện tử"));
         model.addAttribute("bookingSources", List.of("Gặp trực tiếp", "Điện thoại", "Fax", "Email", "Internet"));
         return "step1";
+    }
+
+    @GetMapping("/introduction")
+    public String introduction() {
+        return "introduction";
+    }
+
+    @GetMapping("/booking")
+    public String booking(Model model) {
+        model.addAttribute("rooms", repo.getAllRooms());
+        model.addAttribute("totalRooms", repo.countTotalRooms());
+        model.addAttribute("availableRooms", repo.countAvailableRooms());
+        return "booking";
+    }
+
+    @GetMapping("/contact")
+    public String contact() {
+        return "contact";
     }
 
     @PostMapping("/step1/submit")

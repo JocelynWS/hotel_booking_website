@@ -1,9 +1,17 @@
 package com.hotel.repository;
 
-import com.hotel.model.*;
-
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import com.hotel.model.BookingSource;
+import com.hotel.model.Guest;
+import com.hotel.model.Reservation;
+import com.hotel.model.ReservationStatus;
+import com.hotel.model.ReservationType;
+import com.hotel.model.Room;
+import com.hotel.model.RoomStatus;
 
 public class HotelRepository {
 
@@ -18,26 +26,30 @@ public class HotelRepository {
     }
 
     private void initializeSampleData() {
-        rooms.add(new Room("R101", "Single", 500_000, 1, 1));
-        rooms.add(new Room("R102", "Single", 500_000, 1, 1));
-        rooms.add(new Room("R103", "Single", 550_000, 1, 1));
-        rooms.add(new Room("R104", "Single", 550_000, 1, 1));
-        rooms.add(new Room("R105", "Double", 850_000, 1, 2));
-        rooms.add(new Room("R106", "Double", 850_000, 1, 2));
-        rooms.add(new Room("R107", "Double", 900_000, 1, 2));
-        rooms.add(new Room("R108", "Double", 900_000, 1, 2));
-        rooms.add(new Room("R201", "Triple", 1_200_000, 2, 3));
-        rooms.add(new Room("R202", "Triple", 1_200_000, 2, 3));
-        rooms.add(new Room("R203", "Triple", 1_300_000, 2, 3));
-        rooms.add(new Room("R204", "Suite", 1_500_000, 2, 4));
-        rooms.add(new Room("R205", "Suite", 1_500_000, 2, 4));
-        rooms.add(new Room("R206", "Suite", 1_600_000, 2, 4));
-        rooms.add(new Room("R207", "Suite", 1_600_000, 2, 4));
-        rooms.add(new Room("R301", "VIP Suite", 2_500_000, 3, 6));
-        rooms.add(new Room("R302", "VIP Suite", 2_500_000, 3, 6));
-        rooms.add(new Room("R303", "VIP Suite", 2_800_000, 3, 6));
-        rooms.add(new Room("R304", "VIP Suite", 2_800_000, 3, 6));
-        rooms.add(new Room("R305", "VIP Suite", 3_000_000, 3, 6));
+        // Deluxe City View - 770.000 VNĐ/đêm - 2 người
+        rooms.add(new Room("D101", "Deluxe City View", 770_000, 1, 2));
+        rooms.add(new Room("D102", "Deluxe City View", 770_000, 1, 2));
+        rooms.add(new Room("D103", "Deluxe City View", 770_000, 1, 2));
+        rooms.add(new Room("D104", "Deluxe City View", 770_000, 1, 2));
+        rooms.add(new Room("D105", "Deluxe City View", 770_000, 1, 2));
+
+        // Deluxe Triple City View - 990.000 VNĐ/đêm - 3 người
+        rooms.add(new Room("DT101", "Deluxe Triple City View", 990_000, 1, 3));
+        rooms.add(new Room("DT102", "Deluxe Triple City View", 990_000, 1, 3));
+        rooms.add(new Room("DT103", "Deluxe Triple City View", 990_000, 1, 3));
+
+        // Executive Suite City View - 1.210.000 VNĐ/đêm - 2 người
+        rooms.add(new Room("E101", "Executive Suite City View", 1_210_000, 2, 2));
+        rooms.add(new Room("E102", "Executive Suite City View", 1_210_000, 2, 2));
+        rooms.add(new Room("E103", "Executive Suite City View", 1_210_000, 2, 2));
+
+        // Executive Twin City View - 1.430.000 VNĐ/đêm - 3 người
+        rooms.add(new Room("ET101", "Executive Twin City View", 1_430_000, 2, 3));
+        rooms.add(new Room("ET102", "Executive Twin City View", 1_430_000, 2, 3));
+
+        // Presidential Suite - 3.905.000 VNĐ/đêm - 2 người
+        rooms.add(new Room("P101", "Presidential Suite", 3_905_000, 3, 2));
+        rooms.add(new Room("P102", "Presidential Suite", 3_905_000, 3, 2));
     }
 
     // ═══════════════════════════════════════════════════════════════
