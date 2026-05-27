@@ -97,7 +97,7 @@
             </div>
             <div class="row-item">
                 <span class="label">Phòng</span>
-                <span class="value"><span th:text="${room.roomId}">R101</span> - <span th:text="${room.roomType}">Double</span></span>
+                <span class="value"><span th:text="${roomId}">R101</span> - <span th:text="${room.roomType}">Double</span></span>
             </div>
             <div class="row-item">
                 <span class="label">Nhận phòng</span>
@@ -112,12 +112,20 @@
                 <span class="value" th:text="${nights}">1</span>
             </div>
             <div class="row-item">
+                <span class="label">Số phòng</span>
+                <span class="value" th:text="${numberOfRooms}">1</span>
+            </div>
+            <div class="row-item">
                 <span class="label">Đơn giá</span>
                 <span class="value"><span th:text="${#numbers.formatDecimal(room.pricePerNight, 0, 0)}">850,000</span> VND/đêm</span>
             </div>
             <div class="row-item total">
                 <span class="label" style="font-weight: 700; color: var(--navy);">Tổng thanh toán</span>
                 <span class="value"><span th:text="${#numbers.formatDecimal(totalPrice, 0, 0)}">850,000</span> VND</span>
+            </div>
+            <div class="row-item total" style="border-top: none; padding-top: 0;">
+                <span class="label" style="font-weight: 700; color: var(--orange);">Số tiền cọc (50%)</span>
+                <span class="value" style="font-size: 20px; color: var(--orange); font-weight: 700;"><span th:text="${#numbers.formatDecimal(totalPrice / 2, 0, 0)}">425,000</span> VND</span>
             </div>
         </div>
     </div>
@@ -145,7 +153,7 @@
         <div class="payment-section active" id="section-bank">
             <div class="alert-notice">
                 <i class="fas fa-info-circle"></i>
-                Vui lòng chuyển khoản theo thông tin bên dưới, sau đó nhập mã giao dịch để xác nhận.
+                Vui lòng quét mã QR bên dưới hoặc chuyển khoản theo thông tin tài khoản để cọc 50%.
             </div>
             <div class="bank-info mt-3">
                 <div class="bank-row">
@@ -161,12 +169,12 @@
                     <span class="value">KS ĐẠI BÀNG HÀ TĨNH</span>
                 </div>
                 <div class="bank-row">
-                    <span class="label">Số tiền</span>
-                    <span class="value" style="color: var(--orange); font-size: 16px;" th:text="${#numbers.formatDecimal(totalPrice, 0, 0)} + ' VND'">850,000 VND</span>
+                    <span class="label">Số tiền cọc (50%)</span>
+                    <span class="value" style="color: var(--orange); font-size: 16px; font-weight: 700;" th:text="${#numbers.formatDecimal(totalPrice / 2, 0, 0)} + ' VND'">425,000 VND</span>
                 </div>
                 <div class="bank-row">
                     <span class="label">Nội dung CK</span>
-                    <span class="value">[SDT] Dat phong [NGAY]</span>
+                    <span class="value" th:text="${phone} + ' Dat phong ' + ${checkIn}">[SDT] Dat phong [NGAY]</span>
                 </div>
             </div>
         </div>
@@ -203,26 +211,23 @@
         <div class="payment-section" id="section-ewallet">
             <div class="alert-notice">
                 <i class="fas fa-qrcode"></i>
-                Quét mã QR bằng ứng dụng ví điện tử để thanh toán.
+                Quét mã QR bằng ứng dụng ví điện tử để thanh toán cọc 50%.
             </div>
-            <div class="text-center mt-3">
-                <div style="width: 200px; height: 200px; background: #fff; border: 2px solid var(--border); border-radius: 8px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-qrcode fa-5x" style="color: var(--navy);"></i>
-                </div>
-                <div class="d-flex justify-content-center gap-3">
-                    <span class="badge bg-primary p-2">MoMo</span>
-                    <span class="badge bg-success p-2">ZaloPay</span>
-                    <span class="badge bg-danger p-2">VNPay</span>
-                    <span class="badge bg-info p-2">ShopeePay</span>
-                </div>
+        </div>
+
+        <!-- QR Display Container -->
+        <div class="text-center mt-4">
+            <div style="width: 280px; height: 280px; background: #fff; border: 2px solid var(--border); border-radius: 12px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <img src="/images/hotel_qr.png" alt="Mã QR Khách Sạn" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
+            <span class="text-muted"><i class="fas fa-camera me-1"></i> Quét mã QR để chuyển khoản nhanh</span>
         </div>
     </div>
 
     <!-- Transaction Code -->
     <div class="payment-card">
-        <h4><i class="fas fa-hashtag me-2"></i>Xác nhận giao dịch</h4>
-        <form action="/payment/confirm" method="post">
+        <h4><i class="fas fa-check-circle me-2"></i>Xác nhận đặt phòng</h4>
+        <form action="/payment/confirm" method="post" id="paymentForm">
             <input type="hidden" name="guestName" th:value="${guestName}">
             <input type="hidden" name="registrantName" th:value="${registrantName}">
             <input type="hidden" name="address" th:value="${address}">
@@ -239,19 +244,18 @@
             <input type="hidden" name="bookingSource" th:value="${bookingSource}">
             <input type="hidden" name="specialRequests" th:value="${specialRequests}">
             <input type="hidden" name="selectedPaymentMethod" id="selectedPaymentMethod" th:value="${paymentMethod}">
+            <input type="hidden" name="transactionCode" id="transactionCode">
 
-            <div class="transaction-input">
-                <label class="form-label fw-bold">Mã giao dịch / Mã tham chiếu</label>
-                <input type="text" class="form-control" name="transactionCode" placeholder="Nhập mã giao dịch sau khi thanh toán..." required>
-                <small class="text-muted">Mã giao dịch bạn nhận được từ ngân hàng / ví điện tử</small>
+            <div class="alert alert-info text-center py-3">
+                <i class="fas fa-piggy-bank me-2"></i>Số tiền đặt cọc 50% là: <strong class="text-danger" style="font-size: 1.25rem;"><span th:text="${#numbers.formatDecimal(totalPrice / 2, 0, 0)}">425,000</span> VND</strong>
             </div>
 
             <div class="text-center mt-4">
                 <a href="/step1" class="btn btn-back me-2">
                     <i class="fas fa-arrow-left me-1"></i>Quay lại
                 </a>
-                <button type="submit" class="btn btn-confirm">
-                    <i class="fas fa-check me-1"></i>Xác nhận thanh toán
+                <button type="submit" class="btn btn-confirm" style="background: var(--navy); border-color: var(--navy);">
+                    <i class="fas fa-check-circle me-1"></i>Tôi đã thanh toán cọc 50%
                 </button>
             </div>
         </form>
@@ -261,6 +265,17 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let currentMethod = 'bank';
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const randNum = Math.floor(100000 + Math.random() * 900000);
+        const now = new Date();
+        const formattedDate = now.getFullYear() + 
+                              String(now.getMonth() + 1).padStart(2, '0') + 
+                              String(now.getDate()).padStart(2, '0') + 
+                              String(now.getHours()).padStart(2, '0') + 
+                              String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('transactionCode').value = 'REF' + formattedDate + randNum;
+    });
 
     function selectMethod(method) {
         currentMethod = method;

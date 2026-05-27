@@ -7,29 +7,56 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import jakarta.servlet.http.HttpSession;
 
 import com.hotel.model.BookingSource;
 import com.hotel.model.Guest;
 import com.hotel.model.Reservation;
+import com.hotel.model.ReservationStatus;
 import com.hotel.model.ReservationType;
 import com.hotel.model.Room;
 import com.hotel.model.RoomStatus;
 import com.hotel.repository.HotelRepository;
+import com.hotel.service.DatabaseManager;
+import com.hotel.service.BusinessLogicService;
 
 @Controller
 public class BookingController {
 
-    private final HotelRepository repo = new HotelRepository();
+    private final HotelRepository repo;
+    private final DatabaseManager dbManager;
+    private final BusinessLogicService logicService;
+
+    @Autowired
+    public BookingController(HotelRepository repo, DatabaseManager dbManager, BusinessLogicService logicService) {
+        this.repo = repo;
+        this.dbManager = dbManager;
+        this.logicService = logicService;
+    }
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String home(
+            @RequestParam(required = false) String checkIn,
+            @RequestParam(required = false) String checkOut,
+            Model model) {
+            
+        LocalDate checkInDate = checkIn != null && !checkIn.isEmpty() ? LocalDate.parse(checkIn) : null;
+        LocalDate checkOutDate = checkOut != null && !checkOut.isEmpty() ? LocalDate.parse(checkOut) : null;
+        boolean isSearched = (checkInDate != null && checkOutDate != null);
+
+        model.addAttribute("isSearched", isSearched);
+        model.addAttribute("searchCheckIn", checkIn);
+        model.addAttribute("searchCheckOut", checkOut);
+
         model.addAttribute("rooms", repo.getAllRooms());
         model.addAttribute("totalRooms", repo.countTotalRooms());
         model.addAttribute("availableRooms", repo.countAvailableRooms());
@@ -92,6 +119,7 @@ public class BookingController {
             summary.put("availableCount", availableCount);
             summary.put("totalCount", typeRooms.size());
             summary.put("maxCapacity", maxCapacity);
+            summary.put("idSafe", type.replaceAll("\\s+", "-"));
 
             roomTypeSummaries.add(summary);
 
@@ -103,16 +131,35 @@ public class BookingController {
 
         // Build roomsByType: Map of room type -> list of actual Room objects
         Map<String, List<Room>> roomsByType = new LinkedHashMap<>();
+        Map<String, Long> availableRoomCounts = new HashMap<>();
+        Map<String, Boolean> roomAvailabilityMap = new HashMap<>();
+
         for (String type : allTypes) {
             List<Room> typeRooms = repo.findRoomsByType(type);
             if (!typeRooms.isEmpty()) {
                 roomsByType.put(type, typeRooms);
+                long count = 0;
+                for (Room room : typeRooms) {
+                    boolean available = true;
+                    if (isSearched) {
+                        available = !repo.isRoomBookedInPeriod(room.getRoomId(), checkInDate, checkOutDate) 
+                                    && room.getStatus() != RoomStatus.MAINTENANCE 
+                                    && room.getStatus() != RoomStatus.OUT_OF_ORDER;
+                    }
+                    roomAvailabilityMap.put(room.getRoomId(), available);
+                    if (available) {
+                        count++;
+                    }
+                }
+                availableRoomCounts.put(type, count);
             }
         }
         
         model.addAttribute("roomTypeSummaries", roomTypeSummaries);
         model.addAttribute("roomTypesForSelect", roomTypesList);
         model.addAttribute("roomsByType", roomsByType);
+        model.addAttribute("availableRoomCounts", availableRoomCounts);
+        model.addAttribute("roomAvailabilityMap", roomAvailabilityMap);
         model.addAttribute("typeImages", typeImages);
         return "index";
     }
@@ -195,10 +242,34 @@ public class BookingController {
         LocalDate checkOutDate = LocalDate.parse(checkOut);
         int nights = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
+        // Kiểm tra danh sách đen (Blacklist)
+        Optional<Guest> existingGuest = repo.findGuestByPhone(phone);
+        if (existingGuest.isPresent() && existingGuest.get().isBlacklisted()) {
+            model.addAttribute("error", "Tài khoản/Số điện thoại này hiện đang bị tạm khóa (Blacklist). Lý do: " + existingGuest.get().getBlacklistReason());
+            model.addAttribute("roomTypes", getBookingRoomTypes());
+            model.addAttribute("paymentMethods", getPaymentMethods());
+            model.addAttribute("bookingSources", getBookingSources());
+            model.addAttribute("selectedRoomType", roomType);
+            model.addAttribute("checkIn", checkIn);
+            model.addAttribute("checkOut", checkOut);
+            model.addAttribute("numberOfGuests", numberOfGuests);
+            model.addAttribute("numberOfRooms", numberOfRooms);
+            model.addAttribute("paymentMethod", paymentMethod);
+            model.addAttribute("reservationType", reservationType);
+            model.addAttribute("bookingSource", bookingSource);
+            model.addAttribute("guestName", guestName);
+            model.addAttribute("phone", phone);
+            model.addAttribute("email", email);
+            model.addAttribute("address", address);
+            model.addAttribute("fax", fax);
+            model.addAttribute("specialRequests", specialRequests);
+            return "step1";
+        }
+
         List<Room> availableRooms = repo.findAvailableRoomsForPeriod(roomType, numberOfGuests, checkInDate, checkOutDate);
 
-        if (availableRooms.isEmpty()) {
-            model.addAttribute("error", "Không có phòng trống cho yêu cầu này!");
+        if (availableRooms.size() < numberOfRooms) {
+            model.addAttribute("error", "Không có đủ " + numberOfRooms + " phòng trống cho yêu cầu này!");
             model.addAttribute("roomTypes", getBookingRoomTypes());
             model.addAttribute("paymentMethods", getPaymentMethods());
             model.addAttribute("bookingSources", getBookingSources());
@@ -240,7 +311,7 @@ public class BookingController {
 
         Room selectedRoom = availableRooms.get(0);
         model.addAttribute("selectedRoom", selectedRoom);
-        model.addAttribute("totalPrice", selectedRoom.getPricePerNight() * nights);
+        model.addAttribute("totalPrice", selectedRoom.getPricePerNight() * nights * numberOfRooms);
 
         return "step1_confirm";
     }
@@ -272,13 +343,14 @@ public class BookingController {
         guest.setRegistrantName(registrantName);
         guest.setFax(fax);
 
-        Room room = repo.findRoomById(roomId).orElseThrow();
+        String[] roomIds = roomId.split(",");
+        Room firstRoom = repo.findRoomById(roomIds[0]).orElseThrow();
         ReservationType resType = reservationType.equals("Đảm bảo") ? ReservationType.GUARANTEED : ReservationType.NON_GUARANTEED;
         BookingSource source = BookingSource.valueOf(bookingSource.toUpperCase().replace(" ", "_"));
 
-        double totalPrice = room.getPricePerNight() * nights;
+        double totalPrice = firstRoom.getPricePerNight() * nights * roomIds.length;
 
-        if (paymentMethod.equals("Chuyển khoản") || paymentMethod.equals("Thẻ tín dụng") || paymentMethod.equals("Ví điện tử")) {
+        if (resType == ReservationType.GUARANTEED) {
             model.addAttribute("guestName", guestName);
             model.addAttribute("registrantName", registrantName);
             model.addAttribute("address", address);
@@ -294,28 +366,37 @@ public class BookingController {
             model.addAttribute("reservationType", reservationType);
             model.addAttribute("bookingSource", bookingSource);
             model.addAttribute("specialRequests", specialRequests != null ? specialRequests : "");
-            model.addAttribute("room", room);
+            model.addAttribute("room", firstRoom);
             model.addAttribute("nights", nights);
+            model.addAttribute("numberOfRooms", roomIds.length);
             model.addAttribute("totalPrice", totalPrice);
 
             return "payment";
         }
 
         repo.saveGuest(guest);
+        dbManager.saveGuest(guest);
 
-        Reservation reservation = repo.createReservation(
-                guest, room, checkInDate, checkOutDate,
-                numberOfGuests, resType, source,
-                paymentMethod, specialRequests != null ? specialRequests : ""
-        );
+        Reservation lastReservation = null;
+        for (String rId : roomIds) {
+            Room r = repo.findRoomById(rId).orElseThrow();
+            lastReservation = repo.createReservation(
+                    guest, r, checkInDate, checkOutDate,
+                    numberOfGuests, resType, source,
+                    paymentMethod, specialRequests != null ? specialRequests : ""
+            );
+            repo.updateRoomStatus(rId, RoomStatus.OCCUPIED);
+            dbManager.saveRoom(r);
+            dbManager.saveReservation(lastReservation);
+        }
 
-        repo.updateRoomStatus(roomId, RoomStatus.OCCUPIED);
-
-        model.addAttribute("reservation", reservation);
+        model.addAttribute("reservation", lastReservation);
         model.addAttribute("guest", guest);
-        model.addAttribute("room", room);
+        model.addAttribute("room", firstRoom);
         model.addAttribute("nights", nights);
+        model.addAttribute("numberOfRooms", roomIds.length);
         model.addAttribute("totalPrice", totalPrice);
+        model.addAttribute("displayRoomId", roomId);
 
         return "success";
     }
@@ -348,27 +429,37 @@ public class BookingController {
         guest.setRegistrantName(registrantName);
         guest.setFax(fax);
         repo.saveGuest(guest);
+        dbManager.saveGuest(guest);
 
-        Room room = repo.findRoomById(roomId).orElseThrow();
+        String[] roomIds = roomId.split(",");
+        Room firstRoom = repo.findRoomById(roomIds[0]).orElseThrow();
         ReservationType resType = reservationType.equals("Đảm bảo") ? ReservationType.GUARANTEED : ReservationType.NON_GUARANTEED;
         BookingSource source = BookingSource.valueOf(bookingSource.toUpperCase().replace(" ", "_"));
 
-        String paymentDetail = paymentMethod + " (Mã GD: " + transactionCode + ")";
+        double totalPrice = firstRoom.getPricePerNight() * nights * roomIds.length;
+        String paymentDetail = paymentMethod + " (Đã cọc 50%: " + String.format("%,.0f", totalPrice / 2) + " VND, Mã GD: " + transactionCode + ")";
 
-        Reservation reservation = repo.createReservation(
-                guest, room, checkInDate, checkOutDate,
-                numberOfGuests, resType, source,
-                paymentDetail, specialRequests
-        );
+        Reservation lastReservation = null;
+        for (String rId : roomIds) {
+            Room r = repo.findRoomById(rId).orElseThrow();
+            lastReservation = repo.createReservation(
+                    guest, r, checkInDate, checkOutDate,
+                    numberOfGuests, resType, source,
+                    paymentDetail, specialRequests
+            );
+            repo.updateRoomStatus(rId, RoomStatus.OCCUPIED);
+            dbManager.saveRoom(r);
+            dbManager.saveReservation(lastReservation);
+        }
 
-        repo.updateRoomStatus(roomId, RoomStatus.OCCUPIED);
-
-        model.addAttribute("reservation", reservation);
+        model.addAttribute("reservation", lastReservation);
         model.addAttribute("guest", guest);
-        model.addAttribute("room", room);
+        model.addAttribute("room", firstRoom);
         model.addAttribute("nights", nights);
-        model.addAttribute("totalPrice", room.getPricePerNight() * nights);
+        model.addAttribute("numberOfRooms", roomIds.length);
+        model.addAttribute("totalPrice", firstRoom.getPricePerNight() * nights * roomIds.length);
         model.addAttribute("transactionCode", transactionCode);
+        model.addAttribute("displayRoomId", roomId);
 
         return "success";
     }
@@ -458,5 +549,233 @@ public class BookingController {
             result.add(map);
         }
         return result;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ĐƯỜNG DẪN QUẢN TRỊ (ADMIN ENDPOINTS)
+    // ═══════════════════════════════════════════════════════════════
+
+    @GetMapping("/admin/login")
+    public String adminLogin(HttpSession session) {
+        if (session.getAttribute("adminUser") != null) {
+            return "redirect:/admin";
+        }
+        return "admin_login";
+    }
+
+    @PostMapping("/admin/login")
+    public String doAdminLogin(
+            @RequestParam String username,
+            @RequestParam String password,
+            HttpSession session,
+            Model model) {
+        if ("admin".equals(username) && "admin123".equals(password)) {
+            session.setAttribute("adminUser", username);
+            return "redirect:/admin";
+        }
+        model.addAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng!");
+        return "admin_login";
+    }
+
+    @GetMapping("/admin/logout")
+    public String adminLogout(HttpSession session) {
+        session.removeAttribute("adminUser");
+        session.invalidate();
+        return "redirect:/admin/login";
+    }
+
+    @GetMapping("/admin")
+    public String adminDashboard(HttpSession session, Model model) {
+        if (session.getAttribute("adminUser") == null) {
+            return "redirect:/admin/login";
+        }
+
+        List<Room> allRooms = repo.getAllRooms();
+        List<Reservation> allReservations = repo.getAllReservations();
+        List<Guest> allGuests = repo.getAllGuests();
+
+        // Tính toán số liệu thống kê
+        int totalRooms = allRooms.size();
+        long occupiedCount = allRooms.stream()
+                .filter(r -> r.getStatus() == RoomStatus.OCCUPIED)
+                .count();
+        double occupancyRate = totalRooms > 0 ? (double) occupiedCount / totalRooms * 100 : 0;
+
+        long todayReservationsCount = allReservations.stream()
+                .filter(res -> res.getCreatedAt().toLocalDate().equals(LocalDate.now()))
+                .count();
+
+        long blacklistCount = allGuests.stream()
+                .filter(Guest::isBlacklisted)
+                .count();
+
+        model.addAttribute("rooms", allRooms);
+        model.addAttribute("reservations", allReservations);
+        model.addAttribute("guests", allGuests);
+        
+        model.addAttribute("totalRooms", totalRooms);
+        model.addAttribute("occupiedRooms", occupiedCount);
+        model.addAttribute("occupancyRate", occupancyRate);
+        model.addAttribute("todayReservations", todayReservationsCount);
+        model.addAttribute("blacklistCount", blacklistCount);
+
+        model.addAttribute("roomStatuses", RoomStatus.values());
+        model.addAttribute("reservationStatuses", ReservationStatus.values());
+        model.addAttribute("bookingSources", BookingSource.values());
+        model.addAttribute("reservationTypes", ReservationType.values());
+
+        return "admin";
+    }
+
+    @PostMapping("/admin/rooms/add")
+    public String addRoom(
+            @RequestParam String roomId,
+            @RequestParam String roomType,
+            @RequestParam double pricePerNight,
+            @RequestParam int floor,
+            @RequestParam int capacity,
+            @RequestParam String status,
+            @RequestParam(required = false) String description,
+            HttpSession session) {
+        if (session.getAttribute("adminUser") == null) {
+            return "redirect:/admin/login";
+        }
+
+        Room newRoom = new Room(roomId, roomType, pricePerNight, floor, capacity);
+        newRoom.setStatus(RoomStatus.valueOf(status));
+        newRoom.setDescription(description != null ? description : "");
+        
+        repo.addRoom(newRoom);
+        dbManager.saveRoom(newRoom);
+
+        return "redirect:/admin?tab=rooms";
+    }
+
+    @PostMapping("/admin/rooms/edit")
+    public String editRoom(
+            @RequestParam String roomId,
+            @RequestParam String roomType,
+            @RequestParam double pricePerNight,
+            @RequestParam int floor,
+            @RequestParam int capacity,
+            @RequestParam String status,
+            @RequestParam(required = false) String description,
+            HttpSession session) {
+        if (session.getAttribute("adminUser") == null) {
+            return "redirect:/admin/login";
+        }
+
+        Room updatedRoom = new Room(roomId, roomType, pricePerNight, floor, capacity);
+        updatedRoom.setStatus(RoomStatus.valueOf(status));
+        updatedRoom.setDescription(description != null ? description : "");
+
+        repo.addOrUpdateRoom(updatedRoom);
+        dbManager.saveRoom(updatedRoom);
+
+        return "redirect:/admin?tab=rooms";
+    }
+
+    @PostMapping("/admin/rooms/status")
+    public String updateRoomStatus(
+            @RequestParam String roomId,
+            @RequestParam String status,
+            HttpSession session) {
+        if (session.getAttribute("adminUser") == null) {
+            return "redirect:/admin/login";
+        }
+
+        repo.updateRoomStatus(roomId, RoomStatus.valueOf(status));
+        repo.findRoomById(roomId).ifPresent(dbManager::saveRoom);
+
+        return "redirect:/admin?tab=rooms";
+    }
+
+    @PostMapping("/admin/reservations/update-status")
+    public String updateReservationStatus(
+            @RequestParam String reservationId,
+            @RequestParam String status,
+            @RequestParam(required = false) String cancelReason,
+            HttpSession session) {
+        String adminUser = (String) session.getAttribute("adminUser");
+        if (adminUser == null) {
+            return "redirect:/admin/login";
+        }
+
+        repo.findReservationById(reservationId).ifPresent(res -> {
+            ReservationStatus newStatus = ReservationStatus.valueOf(status);
+            
+            if (newStatus == ReservationStatus.CONFIRMED) {
+                res.confirm(adminUser);
+            } else if (newStatus == ReservationStatus.CHECKED_IN) {
+                res.checkIn(adminUser);
+                repo.updateRoomStatus(res.getRoom().getRoomId(), RoomStatus.OCCUPIED);
+                dbManager.saveRoom(res.getRoom());
+            } else if (newStatus == ReservationStatus.CHECKED_OUT) {
+                res.checkOut(adminUser);
+                repo.updateRoomStatus(res.getRoom().getRoomId(), RoomStatus.AVAILABLE);
+                dbManager.saveRoom(res.getRoom());
+            } else if (newStatus == ReservationStatus.CANCELLED) {
+                res.cancel(cancelReason != null && !cancelReason.isEmpty() ? cancelReason : "Hủy bởi Admin", adminUser);
+                repo.updateRoomStatus(res.getRoom().getRoomId(), RoomStatus.AVAILABLE);
+                dbManager.saveRoom(res.getRoom());
+            } else if (newStatus == ReservationStatus.NO_SHOW) {
+                res.markNoShow(adminUser);
+                repo.updateRoomStatus(res.getRoom().getRoomId(), RoomStatus.AVAILABLE);
+                dbManager.saveRoom(res.getRoom());
+            } else {
+                res.setStatus(newStatus);
+            }
+            dbManager.saveReservation(res);
+        });
+
+        return "redirect:/admin?tab=reservations";
+    }
+
+    @PostMapping("/admin/guests/blacklist")
+    public String toggleGuestBlacklist(
+            @RequestParam String guestId,
+            @RequestParam(required = false) String reason,
+            HttpSession session) {
+        if (session.getAttribute("adminUser") == null) {
+            return "redirect:/admin/login";
+        }
+
+        repo.findGuestById(guestId).ifPresent(g -> {
+            if (g.isBlacklisted()) {
+                g.removeFromBlacklist();
+            } else {
+                g.addToBlacklist(reason != null && !reason.isEmpty() ? reason : "Lý do khác");
+            }
+            dbManager.saveGuest(g);
+        });
+
+        return "redirect:/admin?tab=guests";
+    }
+
+    @PostMapping("/admin/guests/edit")
+    public String editGuest(
+            @RequestParam String guestId,
+            @RequestParam String fullName,
+            @RequestParam String phone,
+            @RequestParam String email,
+            @RequestParam String address,
+            @RequestParam String idNumber,
+            HttpSession session) {
+        if (session.getAttribute("adminUser") == null) {
+            return "redirect:/admin/login";
+        }
+
+        repo.findGuestById(guestId).ifPresent(g -> {
+            g.setFullName(fullName);
+            g.setPhone(phone);
+            g.setEmail(email);
+            g.setAddress(address);
+            g.setIdNumber(idNumber);
+            
+            repo.updateGuest(g);
+            dbManager.saveGuest(g);
+        });
+
+        return "redirect:/admin?tab=guests";
     }
 }

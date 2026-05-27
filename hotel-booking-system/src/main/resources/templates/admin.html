@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng quản trị Khách sạn Đại Bàng</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-bg: #f8fafc;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            --accent-color: #6366f1;
+            --sidebar-bg: #0f172a;
+            --text-dark: #1e293b;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            color: #94a3b8;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-logo i {
+            color: var(--accent-color);
+            font-size: 1.6rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link-custom:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #f1f5f9;
+        }
+
+        .nav-link-custom.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 15px;
+            margin-top: auto;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Top Header */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header-title p {
+            color: #64748b;
+            margin: 5px 0 0 0;
+            font-size: 0.95rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .db-console-btn {
+            background: #0f172a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+
+        .db-console-btn:hover {
+            background: #1e293b;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Stat Card Grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(241, 245, 249, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-info h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        .stat-info p {
+            color: #64748b;
+            margin: 5px 0 0 0;
+            font-size: 0.88rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .stat-blue {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+        .stat-green {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .stat-orange {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+        }
+
+        .stat-red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef444b;
+        }
+
+        /* Content Card / Table section */
+        .content-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(241, 245, 249, 0.9);
+            margin-bottom: 30px;
+        }
+
+        .card-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Table Design */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-custom th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-custom td {
+            padding: 18px 20px;
+            color: #334155;
+            font-size: 0.92rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .table-custom tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-custom tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Badges */
+        .badge-custom {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Room Status Badges */
+        .badge-available {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-occupied {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-cleaning {
+            background-color: #fef9c3;
+            color: #a16207;
+        }
+
+        .badge-maintenance {
+            background-color: #ffedd5;
+            color: #c2410c;
+        }
+
+        /* Reservation Status Badges */
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-confirmed {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-checked-in {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-checked-out {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-cancelled {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-no-show {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Buttons */
+        .btn-custom {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            background-color: transparent;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+        }
+
+        .btn-outline-custom:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        .btn-sm-custom {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        /* Tab Display Logic */
+        .tab-content-panel {
+            display: none;
+        }
+
+        .tab-content-panel.show {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Modal styling */
+        .modal-content-custom {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header-custom {
+            border-bottom: 1px solid #f1f5f9;
+            padding: 24px 30px;
+        }
+
+        .modal-body-custom {
+            padding: 30px;
+        }
+
+        .modal-footer-custom {
+            border-top: 1px solid #f1f5f9;
+            padding: 20px 30px;
+        }
+
+        /* Form Inputs */
+        .form-label-custom {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-control-custom {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-custom:focus {
+            background-color: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            outline: none;
+        }
+
+        .history-item {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 15px;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 8px;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            border: 2px solid white;
+        }
+
+        .history-timestamp {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .history-desc {
+            font-size: 0.88rem;
+            color: #334155;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-hotel"></i>
+            <span>Khách sạn Đại Bàng</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a class="nav-link-custom active" onclick="switchTab('dashboard', this)">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Tổng quan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link-custom" onclick="switchTab('rooms', this)">
+                    <i class="fa-solid fa-bed"></i>
+                    Quản lý phòng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link-custom" onclick="switchTab('reservations', this)">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Đơn đặt phòng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link-custom" onclick="switchTab('guests', this)">
+                    <i class="fa-solid fa-users"></i>
+                    Khách hàng
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="/admin/logout" class="nav-link-custom text-danger">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="main-content">
+
+        <!-- Header -->
+        <div class="top-header">
+            <div class="header-title">
+                <h1 id="panel-title">Bảng tổng quan điều hành</h1>
+                <p>Xin chào, <strong class="text-indigo" th:text="${session.adminUser}">Admin</strong> | Hệ thống hoạt
+                    động bình thường</p>
+            </div>
+            <div class="header-actions">
+                <a href="/h2-console" target="_blank" class="db-console-btn">
+                    <i class="fa-solid fa-database"></i> SQL H2 Console
+                </a>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TAB 1: TỔNG QUAN (DASHBOARD)
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="tab-dashboard" class="tab-content-panel show">
+
+            <!-- Statistics Cards -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 th:text="${totalRooms}">15</h3>
+                        <p>Tổng số phòng</p>
+                    </div>
+                    <div class="stat-icon stat-blue">
+                        <i class="fa-solid fa-door-open"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 th:text="${#numbers.formatDecimal(occupancyRate, 1, 1)} + '%'">40%</h3>
+                        <p>Hiệu suất phòng %</p>
+                    </div>
+                    <div class="stat-icon stat-green">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 th:text="${todayReservations}">3</h3>
+                        <p>Đơn đặt hôm nay</p>
+                    </div>
+                    <div class="stat-icon stat-orange">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 th:text="${blacklistCount}">1</h3>
+                        <p>Khách blacklist</p>
+                    </div>
+                    <div class="stat-icon stat-red">
+                        <i class="fa-solid fa-user-slash"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome & Quick access card -->
+            <div class="content-card mb-4">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-bullhorn text-indigo me-2"></i>Thông báo điều hành</h4>
+                <p class="text-muted">Hệ thống CSDL SQL H2 đã kết nối thành công tại đường dẫn cục bộ. Mọi hoạt động đặt
+                    buồng của khách và nghiệp vụ check-in, check-out của lễ tân sẽ được tự động đồng bộ hóa xuống bảng
+                    dữ liệu quan hệ.</p>
+                <div class="d-flex gap-3 mt-4">
+                    <button class="btn-custom btn-primary-custom"
+                        onclick="document.querySelector('[onclick*=\'rooms\']').click()">
+                        <i class="fa-solid fa-plus"></i> Thêm/Sửa thông tin phòng
+                    </button>
+                    <button class="btn-custom btn-outline-custom"
+                        onclick="document.querySelector('[onclick*=\'reservations\']').click()">
+                        <i class="fa-solid fa-list-check"></i> Xem đơn chờ duyệt
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TAB 2: QUẢN LÝ PHÒNG (ROOMS)
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="tab-rooms" class="tab-content-panel">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h2>Danh sách tất cả các phòng</h2>
+                    <button class="btn-custom btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+                        <i class="fa-solid fa-plus"></i> Thêm phòng mới
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Mã phòng</th>
+                                <th>Loại phòng</th>
+                                <th>Giá/Đêm</th>
+                                <th>Tầng</th>
+                                <th>Sức chứa</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="room : ${rooms}">
+                                <td class="fw-bold" th:text="${room.roomId}">P101</td>
+                                <td th:text="${room.roomType}">Standard Double</td>
+                                <td class="fw-semibold text-indigo"
+                                    th:text="${#numbers.formatDecimal(room.pricePerNight, 1, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                    1,200,000</td>
+                                <td th:text="${room.floor}">1</td>
+                                <td th:text="${room.capacity} + ' Khách'">2 Khách</td>
+                                <td>
+                                    <span th:if="${room.status.name() == 'AVAILABLE'}"
+                                        class="badge-custom badge-available">
+                                        <i class="fa-solid fa-circle-check"></i> Trống (Sẵn sàng)
+                                    </span>
+                                    <span th:if="${room.status.name() == 'OCCUPIED'}"
+                                        class="badge-custom badge-occupied">
+                                        <i class="fa-solid fa-bed"></i> Đang có khách
+                                    </span>
+                                    <span th:if="${room.status.name() == 'CLEANING'}"
+                                        class="badge-custom badge-cleaning">
+                                        <i class="fa-solid fa-broom"></i> Đang dọn dẹp
+                                    </span>
+                                    <span th:if="${room.status.name() == 'MAINTENANCE'}"
+                                        class="badge-custom badge-maintenance">
+                                        <i class="fa-solid fa-wrench"></i> Đang bảo trì
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="dropdown d-inline-block">
+                                        <button class="btn-custom btn-outline-custom btn-sm-custom dropdown-toggle"
+                                            type="button" data-bs-toggle="dropdown">
+                                            Đổi trạng thái
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <form th:action="@{/admin/rooms/status}" method="POST">
+                                                    <input type="hidden" name="roomId" th:value="${room.roomId}">
+                                                    <input type="hidden" name="status" value="AVAILABLE">
+                                                    <button class="dropdown-item text-success" type="submit">Trống (Sẵn
+                                                        sàng)</button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form th:action="@{/admin/rooms/status}" method="POST">
+                                                    <input type="hidden" name="roomId" th:value="${room.roomId}">
+                                                    <input type="hidden" name="status" value="OCCUPIED">
+                                                    <button class="dropdown-item text-primary" type="submit">Đang có
+                                                        khách</button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form th:action="@{/admin/rooms/status}" method="POST">
+                                                    <input type="hidden" name="roomId" th:value="${room.roomId}">
+                                                    <input type="hidden" name="status" value="CLEANING">
+                                                    <button class="dropdown-item text-warning" type="submit">Đang dọn
+                                                        dẹp</button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form th:action="@{/admin/rooms/status}" method="POST">
+                                                    <input type="hidden" name="roomId" th:value="${room.roomId}">
+                                                    <input type="hidden" name="status" value="MAINTENANCE">
+                                                    <button class="dropdown-item text-danger" type="submit">Đang bảo
+                                                        trì</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <button class="btn-custom btn-outline-custom btn-sm-custom ms-2"
+                                        th:data-id="${room.roomId}" th:data-type="${room.roomType}"
+                                        th:data-price="${room.pricePerNight}" th:data-floor="${room.floor}"
+                                        th:data-capacity="${room.capacity}" th:data-status="${room.status.name()}"
+                                        th:data-desc="${room.description}" onclick="openEditRoomModal(this)">
+                                        <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TAB 3: ĐƠN ĐẶT PHÒNG (RESERVATIONS)
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="tab-reservations" class="tab-content-panel">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h2>Danh sách đơn đặt phòng</h2>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Phòng</th>
+                                <th>Thời gian lưu trú</th>
+                                <th>Giá/Nửa ngày</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác quản trị</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="res : ${reservations}">
+                                <td class="fw-bold" th:text="${res.reservationId}">RES0001</td>
+                                <td>
+                                    <div class="fw-semibold" th:text="${res.guest.fullName}">Nguyễn Văn A</div>
+                                    <small class="text-muted" th:text="${res.guest.phone}">0987654321</small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-indigo" th:text="${res.room.roomId}">P101</div>
+                                    <small class="text-muted" th:text="${res.room.roomType}">Standard</small>
+                                </td>
+                                <td>
+                                    <span th:text="${res.checkInDate} + ' đến ' + ${res.checkOutDate}">2026-05-27 đến
+                                        2026-05-28</span>
+                                    <div><small class="text-muted fw-medium"
+                                            th:text="'Số đêm: ' + ${res.numberOfNights} + ' đêm'"></small></div>
+                                </td>
+                                <td class="fw-semibold"
+                                    th:text="${#numbers.formatDecimal(res.pricePerNight, 1, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                    1,200,000</td>
+                                <td>
+                                    <span th:if="${res.status.name() == 'PENDING'}"
+                                        class="badge-custom badge-pending">Chờ xác nhận</span>
+                                    <span th:if="${res.status.name() == 'CONFIRMED'}"
+                                        class="badge-custom badge-confirmed">Đã xác nhận</span>
+                                    <span th:if="${res.status.name() == 'CHECKED_IN'}"
+                                        class="badge-custom badge-checked-in">Đã nhận phòng</span>
+                                    <span th:if="${res.status.name() == 'CHECKED_OUT'}"
+                                        class="badge-custom badge-checked-out">Đã trả phòng</span>
+                                    <span th:if="${res.status.name() == 'CANCELLED'}"
+                                        class="badge-custom badge-cancelled" th:title="${res.cancelReason}">Đã
+                                        hủy</span>
+                                    <span th:if="${res.status.name() == 'NO_SHOW'}"
+                                        class="badge-custom badge-no-show">Không đến (No Show)</span>
+                                </td>
+                                <td>
+                                    <!-- Confirm / Cancel (For PENDING) -->
+                                    <div th:if="${res.status.name() == 'PENDING'}" class="d-flex gap-1">
+                                        <form th:action="@{/admin/reservations/update-status}" method="POST">
+                                            <input type="hidden" name="reservationId" th:value="${res.reservationId}">
+                                            <input type="hidden" name="status" value="CONFIRMED">
+                                            <button class="btn-custom btn-primary-custom btn-sm-custom"
+                                                type="submit">Xác nhận</button>
+                                        </form>
+                                        <button class="btn-custom btn-outline-custom btn-sm-custom text-danger"
+                                            th:data-id="${res.reservationId}" onclick="openCancelModal(this)">
+                                            Hủy
+                                        </button>
+                                    </div>
+
+                                    <!-- Check-In / Cancel / No-Show (For CONFIRMED) -->
+                                    <div th:if="${res.status.name() == 'CONFIRMED'}" class="d-flex gap-1">
+                                        <form th:action="@{/admin/reservations/update-status}" method="POST">
+                                            <input type="hidden" name="reservationId" th:value="${res.reservationId}">
+                                            <input type="hidden" name="status" value="CHECKED_IN">
+                                            <button class="btn-custom btn-primary-custom btn-sm-custom" type="submit"><i
+                                                    class="fa-solid fa-key"></i> Check-in</button>
+                                        </form>
+                                        <form th:action="@{/admin/reservations/update-status}" method="POST">
+                                            <input type="hidden" name="reservationId" th:value="${res.reservationId}">
+                                            <input type="hidden" name="status" value="NO_SHOW">
+                                            <button class="btn-custom btn-outline-custom btn-sm-custom" type="submit">No
+                                                Show</button>
+                                        </form>
+                                        <button class="btn-custom btn-outline-custom btn-sm-custom text-danger"
+                                            th:data-id="${res.reservationId}" onclick="openCancelModal(this)">
+                                            Hủy
+                                        </button>
+                                    </div>
+
+                                    <!-- Check-Out (For CHECKED_IN) -->
+                                    <div th:if="${res.status.name() == 'CHECKED_IN'}">
+                                        <button class="btn-custom btn-outline-custom btn-sm-custom text-indigo"
+                                            th:data-id="${res.reservationId}"
+                                            th:data-total-price="${res.calculateTotalPrice()}"
+                                            th:data-nights="${res.numberOfNights}" onclick="openCheckOutModal(this)">
+                                            <i class="fa-solid fa-file-invoice-dollar"></i> Check-out
+                                        </button>
+                                    </div>
+
+                                    <!-- View History Audit Log (All states) -->
+                                    <button class="btn-custom btn-outline-custom btn-sm-custom mt-1"
+                                        th:data-id="${res.reservationId}" th:data-history="${res.historyLog}"
+                                        onclick="openHistoryModal(this)">
+                                        <i class="fa-solid fa-history"></i> Nhật ký
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TAB 4: QUẢN LÝ KHÁCH HÀNG (GUESTS)
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="tab-guests" class="tab-content-panel">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h2>Danh sách thông tin khách hàng</h2>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Mã khách</th>
+                                <th>Họ và tên</th>
+                                <th>Số điện thoại</th>
+                                <th>Email</th>
+                                <th>CCCD / Hộ chiếu</th>
+                                <th>Địa chỉ</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="guest : ${guests}">
+                                <td class="fw-bold" th:text="${guest.guestId}">GST0001</td>
+                                <td class="fw-semibold" th:text="${guest.fullName}">Nguyễn Văn A</td>
+                                <td th:text="${guest.phone}">0987654321</td>
+                                <td th:text="${guest.email}">nguyenvana@gmail.com</td>
+                                <td th:text="${guest.idNumber}">123456789012</td>
+                                <td th:text="${guest.address}">Hà Nội</td>
+                                <td>
+                                    <span th:if="${guest.blacklisted}" class="badge-custom badge-maintenance"
+                                        th:title="${guest.blacklistReason}">
+                                        <i class="fa-solid fa-user-slash"></i> Đang bị Blacklist
+                                    </span>
+                                    <span th:if="${!guest.blacklisted}" class="badge-custom badge-available">
+                                        <i class="fa-solid fa-user-check"></i> Đang hoạt động
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-custom btn-outline-custom btn-sm-custom"
+                                        th:data-id="${guest.guestId}" th:data-name="${guest.fullName}"
+                                        th:data-phone="${guest.phone}" th:data-email="${guest.email}"
+                                        th:data-address="${guest.address}" th:data-idcard="${guest.idNumber}"
+                                        onclick="openEditGuestModal(this)">
+                                        <i class="fa-solid fa-user-pen"></i> Sửa
+                                    </button>
+
+                                    <!-- Blacklist Toggle Buttons -->
+                                    <span th:if="${guest.blacklisted}">
+                                        <form th:action="@{/admin/guests/blacklist}" method="POST" class="d-inline">
+                                            <input type="hidden" name="guestId" th:value="${guest.guestId}">
+                                            <button
+                                                class="btn-custom btn-outline-custom btn-sm-custom text-success ms-1"
+                                                type="submit">
+                                                <i class="fa-solid fa-user-check"></i> Gỡ Blacklist
+                                            </button>
+                                        </form>
+                                    </span>
+                                    <span th:if="${!guest.blacklisted}">
+                                        <button class="btn-custom btn-outline-custom btn-sm-custom text-danger ms-1"
+                                            th:data-id="${guest.guestId}" onclick="openBlacklistModal(this)">
+                                            <i class="fa-solid fa-user-slash"></i> Đưa vào Blacklist
+                                        </button>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MODALS PHẦN PHÒNG (ROOM MODALS)
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- Add Room Modal -->
+    <div class="modal fade" id="addRoomModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <form th:action="@{/admin/rooms/add}" method="POST">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title fw-bold">Thêm phòng khách sạn mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body modal-body-custom">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Mã phòng (Ví dụ: P105)</label>
+                                <input type="text" name="roomId" class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Hạng/Loại phòng</label>
+                                <input type="text" name="roomType" class="form-control form-control-custom" required
+                                    placeholder="Standard, Deluxe...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Giá thuê (VNĐ/Đêm)</label>
+                                <input type="number" name="pricePerNight" class="form-control form-control-custom"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Vị trí Tầng</label>
+                                <input type="number" name="floor" class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Sức chứa tối đa (Khách)</label>
+                                <input type="number" name="capacity" class="form-control form-control-custom" required
+                                    value="2">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Trạng thái phòng</label>
+                                <select name="status" class="form-select form-control-custom">
+                                    <option th:each="st : ${roomStatuses}" th:value="${st.name()}"
+                                        th:text="${st.name()}">AVAILABLE</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-custom">Mô tả phòng</label>
+                                <textarea name="description" class="form-control form-control-custom"
+                                    rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="button" class="btn-custom btn-outline-custom" data-bs-dismiss="modal">Hủy
+                            bỏ</button>
+                        <button type="submit" class="btn-custom btn-primary-custom">Thêm phòng mới</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Room Modal -->
+    <div class="modal fade" id="editRoomModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <form th:action="@{/admin/rooms/edit}" method="POST">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title fw-bold">Chỉnh sửa thông tin phòng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body modal-body-custom">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Mã phòng (Không thay đổi)</label>
+                                <input type="text" id="edit-roomId" name="roomId"
+                                    class="form-control form-control-custom" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Hạng/Loại phòng</label>
+                                <input type="text" id="edit-roomType" name="roomType"
+                                    class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Giá thuê (VNĐ/Đêm)</label>
+                                <input type="number" id="edit-price" name="pricePerNight"
+                                    class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Vị trí Tầng</label>
+                                <input type="number" id="edit-floor" name="floor"
+                                    class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Sức chứa tối đa (Khách)</label>
+                                <input type="number" id="edit-capacity" name="capacity"
+                                    class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Trạng thái phòng</label>
+                                <select id="edit-status" name="status" class="form-select form-control-custom">
+                                    <option th:each="st : ${roomStatuses}" th:value="${st.name()}"
+                                        th:text="${st.name()}">AVAILABLE</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-custom">Mô tả phòng</label>
+                                <textarea id="edit-description" name="description"
+                                    class="form-control form-control-custom" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="button" class="btn-custom btn-outline-custom" data-bs-dismiss="modal">Hủy
+                            bỏ</button>
+                        <button type="submit" class="btn-custom btn-primary-custom">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MODALS PHẦN ĐƠN ĐẶT (RESERVATION MODALS)
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- Cancel Reservation Modal -->
+    <div class="modal fade" id="cancelReservationModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <form th:action="@{/admin/reservations/update-status}" method="POST">
+                    <input type="hidden" name="status" value="CANCELLED">
+                    <input type="hidden" id="cancel-reservationId" name="reservationId">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title fw-bold text-danger">Hủy đơn đặt phòng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body modal-body-custom">
+                        <p class="text-muted">Bạn có chắc chắn muốn hủy đơn đặt phòng này? Thao tác này sẽ cập nhật lại
+                            trạng thái phòng về Trống.</p>
+                        <div class="mt-3">
+                            <label class="form-label-custom">Lý do hủy đơn đặt phòng</label>
+                            <input type="text" name="cancelReason" class="form-control form-control-custom" required
+                                placeholder="Nhập lý do hủy (ví dụ: Khách gọi điện báo bận)...">
+                        </div>
+                    </div>
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="button" class="btn-custom btn-outline-custom" data-bs-dismiss="modal">Không
+                            hủy</button>
+                        <button type="submit" class="btn-custom btn-primary-custom bg-danger">Hủy đơn đặt phòng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Audit Log Modal -->
+    <div class="modal fade" id="historyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title fw-bold">Nhật ký lịch sử đơn đặt phòng <span id="history-resId"
+                            class="text-indigo"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body modal-body-custom">
+                    <div id="history-list">
+                        <!-- History items will be inserted dynamically -->
+                    </div>
+                </div>
+                <div class="modal-footer modal-footer-custom">
+                    <button type="button" class="btn-custom btn-outline-custom" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check-Out Modal -->
+    <div class="modal fade" id="checkOutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <form th:action="@{/admin/reservations/update-status}" method="POST">
+                    <input type="hidden" name="status" value="CHECKED_OUT">
+                    <input type="hidden" id="checkout-reservationId" name="reservationId">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title fw-bold text-success">Thủ tục trả phòng (Check-out)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body modal-body-custom">
+                        <div class="text-center mb-4">
+                            <i class="fa-solid fa-circle-dollar-to-slot text-success" style="font-size: 3rem;"></i>
+                            <h4 class="mt-3 fw-bold">Xác nhận thanh toán</h4>
+                        </div>
+                        <div class="bg-light p-3 rounded-3 mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Tổng số đêm lưu trú:</span>
+                                <span id="checkout-nights" class="fw-semibold">1 đêm</span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-dark fw-bold">TỔNG TIỀN THANH TOÁN:</span>
+                                <span id="checkout-total" class="fw-bold text-indigo fs-5">0 VNĐ</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small text-center">Nhấp xác nhận để hoàn tất thủ tục trả phòng và chuyển
+                            trạng thái phòng sang "CLEANING" (Đang dọn dẹp) hoặc "AVAILABLE" (Trống).</p>
+                    </div>
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="button" class="btn-custom btn-outline-custom"
+                            data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn-custom btn-primary-custom bg-success">Xác nhận trả phòng &
+                            Thanh toán</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MODALS PHẦN KHÁCH HÀNG (GUEST MODALS)
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- Edit Guest Modal -->
+    <div class="modal fade" id="editGuestModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <form th:action="@{/admin/guests/edit}" method="POST">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title fw-bold">Sửa thông tin khách hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body modal-body-custom">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label-custom">Mã khách hàng</label>
+                                <input type="text" id="edit-guestId" name="guestId"
+                                    class="form-control form-control-custom" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Họ và tên</label>
+                                <input type="text" id="edit-guestName" name="fullName"
+                                    class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Số điện thoại</label>
+                                <input type="text" id="edit-guestPhone" name="phone"
+                                    class="form-control form-control-custom" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-custom">Thư điện tử (Email)</label>
+                                <input type="email" id="edit-guestEmail" name="email"
+                                    class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">CCCD / Hộ chiếu</label>
+                                <input type="text" id="edit-guestIdCard" name="idNumber"
+                                    class="form-control form-control-custom">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Địa chỉ thường trú</label>
+                                <input type="text" id="edit-guestAddress" name="address"
+                                    class="form-control form-control-custom">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="button" class="btn-custom btn-outline-custom" data-bs-dismiss="modal">Hủy
+                            bỏ</button>
+                        <button type="submit" class="btn-custom btn-primary-custom">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blacklist Guest Modal -->
+    <div class="modal fade" id="blacklistGuestModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <form th:action="@{/admin/guests/blacklist}" method="POST">
+                    <input type="hidden" id="blacklist-guestId" name="guestId">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title fw-bold text-danger">Đưa khách hàng vào Danh sách đen</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body modal-body-custom">
+                        <p class="text-muted">Khách hàng bị đưa vào Blacklist sẽ bị hệ thống **tự động từ chối đặt
+                            phòng** ngoài trang chủ.</p>
+                        <div class="mt-3">
+                            <label class="form-label-custom">Lý do đưa vào danh sách đen (Blacklist Reason)</label>
+                            <input type="text" name="reason" class="form-control form-control-custom" required
+                                placeholder="Ví dụ: Phá hoại tài sản, Bùng tiền dịch vụ...">
+                        </div>
+                    </div>
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="button" class="btn-custom btn-outline-custom"
+                            data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn-custom btn-primary-custom bg-danger">Xác nhận
+                            Blacklist</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page Logic -->
+    <script th:inline="javascript">
+        // Chuyển đổi tab hiển thị
+        function switchTab(tabId, el) {
+            // Đổi class active ở menu sidebar
+            document.querySelectorAll('.nav-link-custom').forEach(link => {
+                link.classList.remove('active');
+            });
+            el.classList.add('active');
+
+            // Đổi tab hiển thị
+            document.querySelectorAll('.tab-content-panel').forEach(panel => {
+                panel.classList.remove('show');
+            });
+            document.getElementById('tab-' + tabId).classList.add('show');
+
+            // Đổi tiêu đề header
+            const titles = {
+                'dashboard': 'Bảng tổng quan điều hành',
+                'rooms': 'Quản lý kho phòng khách sạn',
+                'reservations': 'Theo dõi và Xử lý đơn đặt phòng',
+                'guests': 'Quản lý Hồ sơ khách hàng'
+            };
+            document.getElementById('panel-title').innerText = titles[tabId];
+        }
+
+        // Tự động giữ nguyên tab sau khi reload
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam) {
+                const targetLink = document.querySelector(`[onclick*='${tabParam}']`);
+                if (targetLink) {
+                    targetLink.click();
+                }
+            }
+        });
+
+        // Edit Room Modal handler
+        function openEditRoomModal(btn) {
+            const id = btn.getAttribute('data-id');
+            const type = btn.getAttribute('data-type');
+            const price = btn.getAttribute('data-price');
+            const floor = btn.getAttribute('data-floor');
+            const capacity = btn.getAttribute('data-capacity');
+            const status = btn.getAttribute('data-status');
+            const desc = btn.getAttribute('data-desc');
+
+            document.getElementById('edit-roomId').value = id;
+            document.getElementById('edit-roomType').value = type;
+            document.getElementById('edit-price').value = parseInt(price);
+            document.getElementById('edit-floor').value = floor;
+            document.getElementById('edit-capacity').value = capacity;
+            document.getElementById('edit-status').value = status;
+            document.getElementById('edit-description').value = desc;
+
+            const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
+            modal.show();
+        }
+
+        // Cancel Reservation Modal handler
+        function openCancelModal(btn) {
+            const id = btn.getAttribute('data-id');
+            document.getElementById('cancel-reservationId').value = id;
+
+            const modal = new bootstrap.Modal(document.getElementById('cancelReservationModal'));
+            modal.show();
+        }
+
+        // Checkout Modal handler
+        function openCheckOutModal(btn) {
+            const id = btn.getAttribute('data-id');
+            const totalPrice = btn.getAttribute('data-total-price');
+            const nights = btn.getAttribute('data-nights');
+
+            document.getElementById('checkout-reservationId').value = id;
+            document.getElementById('checkout-nights').innerText = nights + ' đêm';
+
+            // Format currency
+            const formatter = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            });
+            document.getElementById('checkout-total').innerText = formatter.format(totalPrice);
+
+            const modal = new bootstrap.Modal(document.getElementById('checkOutModal'));
+            modal.show();
+        }
+
+        // Blacklist Guest Modal handler
+        function openBlacklistModal(btn) {
+            const id = btn.getAttribute('data-id');
+            document.getElementById('blacklist-guestId').value = id;
+
+            const modal = new bootstrap.Modal(document.getElementById('blacklistGuestModal'));
+            modal.show();
+        }
+
+        // Edit Guest Modal handler
+        function openEditGuestModal(btn) {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const phone = btn.getAttribute('data-phone');
+            const email = btn.getAttribute('data-email');
+            const address = btn.getAttribute('data-address');
+            const idcard = btn.getAttribute('data-idcard');
+
+            document.getElementById('edit-guestId').value = id;
+            document.getElementById('edit-guestName').value = name;
+            document.getElementById('edit-guestPhone').value = phone;
+            document.getElementById('edit-guestEmail').value = email;
+            document.getElementById('edit-guestAddress').value = address;
+            document.getElementById('edit-guestIdCard').value = idcard;
+
+            const modal = new bootstrap.Modal(document.getElementById('editGuestModal'));
+            modal.show();
+        }
+
+        // View History Audit Log Modal handler
+        function openHistoryModal(btn) {
+            const resId = btn.getAttribute('data-id');
+            document.getElementById('history-resId').innerText = '(' + resId + ')';
+
+            const historyListContainer = document.getElementById('history-list');
+            historyListContainer.innerHTML = '<p class="text-muted text-center"><i class="fa-solid fa-spinner fa-spin me-2"></i>Đang nạp nhật ký...</p>';
+
+            const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+            modal.show();
+
+            // Lấy nhật ký thông qua API hoặc lấy từ data-attribute.
+            // Để đơn giản và nhanh gọn, trong Spring Boot Thymeleaf chúng ta có thể truyền thẳng chuỗi toString của ReservationHistory.
+            // Tuy nhiên, để tối ưu và hiển thị đẹp hơn, ta sẽ lấy dữ liệu từ DOM hoặc map qua attribute.
+            // Vì lịch sử đã được lưu trong DB, chúng ta có thể parse danh sách th:data-history
+            // Hãy lấy dữ liệu history của đơn đó từ Thymeleaf model (chuyển đổi danh sách lịch sử của đơn đó sang JS array).
+            // Chúng ta có thể tìm kiếm đơn reservations trong Thymeleaf để nạp động.
+
+            /* Lấy dữ liệu từ reservations được truyền qua Thymeleaf */
+            const reservations = [[${ reservations }]];
+            const currentRes = reservations.find(r => r.reservationId === resId);
+
+            if (currentRes && currentRes.historyLog && currentRes.historyLog.length > 0) {
+                let html = '';
+                currentRes.historyLog.forEach(item => {
+                    // Format date
+                    const d = new Date(item.timestamp);
+                    const formattedDate = d.getDate().toString().padStart(2, '0') + '/' +
+                        (d.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                        d.getFullYear() + ' ' +
+                        d.getHours().toString().padStart(2, '0') + ':' +
+                        d.getMinutes().toString().padStart(2, '0');
+
+                    let badgeClass = 'bg-secondary';
+                    if (item.action === 'CREATE') badgeClass = 'bg-success';
+                    if (item.action === 'CONFIRM') badgeClass = 'bg-info';
+                    if (item.action === 'CHECK_IN') badgeClass = 'bg-primary';
+                    if (item.action === 'CHECK_OUT') badgeClass = 'bg-dark';
+                    if (item.action === 'CANCEL') badgeClass = 'bg-danger';
+
+                    html += `
+                        <div class="history-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge ${badgeClass} text-white px-2 py-1" style="font-size:0.75rem;">${item.action}</span>
+                                <span class="history-timestamp">${formattedDate}</span>
+                            </div>
+                            <div class="history-desc mt-1">${item.description}</div>
+                            <div class="small text-muted mt-1" style="font-size:0.75rem;"><i class="fa-solid fa-user-tie me-1"></i>Thực hiện bởi: <strong>${item.employeeId}</strong></div>
+                        </div>
+                    `;
+                });
+                historyListContainer.innerHTML = html;
+            } else {
+                historyListContainer.innerHTML = '<p class="text-muted text-center">Không có lịch sử hoạt động nào được ghi lại.</p>';
+            }
+        }
+    </script>
+</body>
+
+</html>

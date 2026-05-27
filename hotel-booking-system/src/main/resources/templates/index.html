@@ -127,18 +127,47 @@
 <section class="rooms-section" id="rooms">
     <div class="container">
         <h2 class="section-title">Phòng của chúng tôi</h2>
+
+        <!-- Bộ lọc ngày -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form action="/" method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Ngày nhận phòng</label>
+                        <input type="date" class="form-control" name="checkIn" th:value="${searchCheckIn}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Ngày trả phòng</label>
+                        <input type="date" class="form-control" name="checkOut" th:value="${searchCheckOut}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-hero w-100"><i class="fas fa-search me-2"></i>Tìm phòng trống</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div th:each="entry : ${roomsByType}">
             <div class="room-type-section">
-                <div class="room-type-title">
-                    <i class="fas fa-door-open"></i>
-                    <span th:text="${entry.key}"></span>
+                <div class="room-type-title d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-door-open"></i>
+                        <span th:text="${entry.key}"></span>
+                        <!-- Nút Xem chi tiết -->
+                        <button class="btn btn-sm btn-outline-secondary ms-3" data-bs-toggle="modal" th:data-bs-target="'#modal-' + ${entry.key.replaceAll('\s+', '-')}">
+                            <i class="fas fa-info-circle me-1"></i>Chi tiết
+                        </button>
+                    </div>
+                    <span th:if="${isSearched}" class="badge bg-success" th:text="'Còn ' + ${availableRoomCounts[entry.key]} + ' phòng trống'"></span>
                 </div>
                 <div class="room-grid">
                     <div class="room-card" th:each="room : ${entry.value}">
                         <div class="room-card__image">
                             <img th:src="${typeImages[entry.key]}" th:attr="alt=${entry.key}">
-                            <div th:if="${room.available}" class="room-card__badge">Còn trống</div>
-                            <div th:unless="${room.available}" class="room-card__badge" style="background: #999;">Đã đặt</div>
+                            <div th:if="${isSearched}">
+                                <div th:if="${roomAvailabilityMap[room.roomId]}" class="room-card__badge">Còn trống</div>
+                                <div th:unless="${roomAvailabilityMap[room.roomId]}" class="room-card__badge" style="background: #999;">Đã đặt</div>
+                            </div>
                         </div>
                         <div class="room-card__content">
                             <div class="room-card__id" th:text="'Phòng ' + ${room.roomId}"></div>
@@ -154,13 +183,56 @@
                                 <div class="room-card__price-value" th:text="${room.priceLabel}" style="color: var(--orange);"></div>
                                 <div class="room-card__price-unit">VND/đêm</div>
                             </div>
-                            <a th:href="@{/step1(roomType=${entry.key})}" class="btn-room-book" th:if="${room.available}">Đặt ngay</a>
-                            <button class="btn-room-book disabled" th:unless="${room.available}" disabled>Đã đặt</button>
+                            <div th:if="${!isSearched || roomAvailabilityMap[room.roomId]}">
+                                <a th:href="@{/step1(roomType=${entry.key}, checkIn=${searchCheckIn}, checkOut=${searchCheckOut})}" class="btn-room-book">Đặt ngay</a>
+                            </div>
+                            <div th:if="${isSearched && !roomAvailabilityMap[room.roomId]}">
+                                <button class="btn-room-book disabled" disabled>Đã đặt</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Modals Chi Tiết Phòng -->
+        <div th:each="summary : ${roomTypeSummaries}">
+            <div class="modal fade" th:id="'modal-' + ${summary.idSafe}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0 pb-0">
+                            <h5 class="modal-title fw-bold text-navy" th:text="${summary.roomType}"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pt-3">
+                            <img th:src="${summary.image}" class="img-fluid rounded mb-3" style="width: 100%; height: 300px; object-fit: cover;" alt="Room Image">
+                            <p class="text-muted" th:text="${summary.description}"></p>
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold"><i class="fas fa-users me-2"></i>Sức chứa tối đa</h6>
+                                    <p th:text="${summary.maxCapacity} + ' người'"></p>
+                                    <h6 class="fw-bold"><i class="fas fa-money-bill me-2"></i>Giá mỗi đêm</h6>
+                                    <p class="text-orange fw-bold" th:text="${summary.priceDisplay} + ' VND'"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold"><i class="fas fa-star me-2"></i>Tiện nghi</h6>
+                                    <ul class="list-unstyled">
+                                        <li th:each="amenity : ${summary.amenities}">
+                                            <i class="fas fa-check text-success me-2"></i><span th:text="${amenity}"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <a th:href="@{/step1(roomType=${summary.roomType}, checkIn=${searchCheckIn}, checkOut=${searchCheckOut})}" class="btn btn-hero">Đặt loại phòng này</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Modals -->
     </div>
 </section>
 <section class="services-section">

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Repository;
+
 import com.hotel.model.BookingSource;
 import com.hotel.model.Guest;
 import com.hotel.model.Reservation;
@@ -13,6 +15,7 @@ import com.hotel.model.ReservationType;
 import com.hotel.model.Room;
 import com.hotel.model.RoomStatus;
 
+@Repository
 public class HotelRepository {
 
     private final List<Room> rooms = new ArrayList<>();
@@ -108,7 +111,7 @@ public class HotelRepository {
                 .filter(r -> hasDateOverlap(r.getCheckInDate(), r.getCheckOutDate(), checkIn, checkOut))
                 .count();
         
-        int roomsAvailable = totalRooms - unavailable - currentlyOccupied - bookedInPeriod + uncertainBookings;
+        int roomsAvailable = totalRooms - unavailable - bookedInPeriod + uncertainBookings;
         
         return new RoomAvailability(totalRooms, unavailable, currentlyOccupied, 
                                    bookedInPeriod, uncertainBookings, roomsAvailable);
@@ -122,7 +125,7 @@ public class HotelRepository {
         return rooms.stream()
                 .filter(r -> r.getRoomType().equalsIgnoreCase(roomType))
                 .filter(r -> r.getCapacity() >= guests)
-                .filter(r -> r.getStatus() == RoomStatus.AVAILABLE)
+                .filter(r -> r.getStatus() != RoomStatus.MAINTENANCE && r.getStatus() != RoomStatus.OUT_OF_ORDER)
                 .filter(r -> !isRoomBookedInPeriod(r.getRoomId(), checkIn, checkOut))
                 .toList();
     }
@@ -243,6 +246,64 @@ public class HotelRepository {
         if (totalUsable == 0) return 0;
         return (double) countOccupiedRooms() / totalUsable * 100;
     }
+
+    // ── Quản lý phòng/khách cho Admin ──────────────────────────────
+
+    public void addRoom(Room room) {
+        rooms.add(room);
+    }
+
+    public void addOrUpdateRoom(Room room) {
+        Optional<Room> existing = findRoomById(room.getRoomId());
+        if (existing.isPresent()) {
+            Room ext = existing.get();
+            ext.setRoomType(room.getRoomType());
+            ext.setPricePerNight(room.getPricePerNight());
+            ext.setFloor(room.getFloor());
+            ext.setCapacity(room.getCapacity());
+            ext.setStatus(room.getStatus());
+            ext.setDescription(room.getDescription());
+        } else {
+            rooms.add(room);
+        }
+    }
+
+    public void updateRoom(Room updatedRoom) {
+        for (int i = 0; i < rooms.size(); i++) {
+            if (rooms.get(i).getRoomId().equalsIgnoreCase(updatedRoom.getRoomId())) {
+                rooms.set(i, updatedRoom);
+                return;
+            }
+        }
+    }
+
+    public void deleteRoom(String roomId) {
+        rooms.removeIf(r -> r.getRoomId().equalsIgnoreCase(roomId));
+    }
+
+    public void clearRooms() {
+        rooms.clear();
+    }
+
+    public void updateGuest(Guest updatedGuest) {
+        for (int i = 0; i < guests.size(); i++) {
+            if (guests.get(i).getGuestId().equals(updatedGuest.getGuestId())) {
+                guests.set(i, updatedGuest);
+                return;
+            }
+        }
+    }
+
+    public void clearAll() {
+        rooms.clear();
+        guests.clear();
+        reservations.clear();
+    }
+
+    public int getGuestCounter() { return guestCounter; }
+    public void setGuestCounter(int val) { this.guestCounter = val; }
+    public int getReservationCounter() { return reservationCounter; }
+    public void setReservationCounter(int val) { this.reservationCounter = val; }
 
     // Inner class for availability analysis
     public record RoomAvailability(

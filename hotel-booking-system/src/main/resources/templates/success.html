@@ -61,7 +61,7 @@
                 <tr>
                     <td class="label">Phòng:</td>
                     <td class="value">
-                        <span class="badge bg-primary me-1" th:text="${room.roomId}">R101</span>
+                        <span class="badge bg-primary me-1" th:text="${displayRoomId != null ? displayRoomId : room.roomId}">R101</span>
                         <span th:text="${room.roomType}">Double</span>
                     </td>
                 </tr>
@@ -84,6 +84,10 @@
                 <tr>
                     <td class="label">Số đêm:</td>
                     <td class="value" th:text="${nights}">2</td>
+                </tr>
+                <tr>
+                    <td class="label">Số phòng:</td>
+                    <td class="value" th:text="${numberOfRooms}">1</td>
                 </tr>
             </table>
 

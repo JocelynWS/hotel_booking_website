@@ -36,7 +36,9 @@ public class Room {
     public double     getPricePerNight()       { return pricePerNight; }
     public void       setPricePerNight(double v){ this.pricePerNight = v; }
     public int        getFloor()               { return floor; }
+    public void       setFloor(int v)          { this.floor = v; }
     public int        getCapacity()            { return capacity; }
+    public void       setCapacity(int v)       { this.capacity = v; }
     public String     getDescription()         { return description; }
     public void       setDescription(String v) { this.description = v; }
 

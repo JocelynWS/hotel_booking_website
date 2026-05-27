@@ -11,3 +11,7 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+
+*.mv.db
+*.lock.db
+*.trace.db

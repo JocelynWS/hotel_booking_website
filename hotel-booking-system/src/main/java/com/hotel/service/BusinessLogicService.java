@@ -4,15 +4,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.hotel.model.Guest;
 import com.hotel.model.Reservation;
 import com.hotel.model.ReservationStatus;
 import com.hotel.repository.HotelRepository;
 
+@Service
 public class BusinessLogicService {
 
     private final HotelRepository repository;
 
+    @Autowired
     public BusinessLogicService(HotelRepository repository) {
         this.repository = repository;
     }

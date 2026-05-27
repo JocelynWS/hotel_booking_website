@@ -122,6 +122,16 @@ public class Reservation {
         addHistory("NO_SHOW", "Khách không đến", employeeId);
     }
 
+    public void checkIn(String employeeId) {
+        this.status = ReservationStatus.CHECKED_IN;
+        addHistory("CHECK_IN", "Nhận phòng (Check-in)", employeeId);
+    }
+
+    public void checkOut(String employeeId) {
+        this.status = ReservationStatus.CHECKED_OUT;
+        addHistory("CHECK_OUT", "Trả phòng (Check-out)", employeeId);
+    }
+
     // ── Lịch sử ─────────────────────────────────────────────────────────────
 
     private void addHistory(String action, String description, String employeeId) {
@@ -130,6 +140,10 @@ public class Reservation {
 
     public List<ReservationHistory> getHistoryLog() {
         return new ArrayList<>(historyLog); // trả bản sao, bảo vệ dữ liệu gốc
+    }
+
+    public void setHistoryLog(List<ReservationHistory> history) {
+        this.historyLog = new ArrayList<>(history);
     }
 
     // ── Inner Class: ReservationHistory ─────────────────────────────────────
@@ -145,6 +159,13 @@ public class Reservation {
             this.description = description;
             this.employeeId  = employeeId;
             this.timestamp   = LocalDateTime.now();
+        }
+
+        public ReservationHistory(String action, String description, String employeeId, LocalDateTime timestamp) {
+            this.action      = action;
+            this.description = description;
+            this.employeeId  = employeeId;
+            this.timestamp   = timestamp;
         }
 
         public String        getAction()      { return action; }

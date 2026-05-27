@@ -2,9 +2,15 @@ package com.hotel.service;
 
 import java.util.List;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.hotel.model.Reservation;
 import com.hotel.repository.HotelRepository;
 
+@Component
 public class AutoCancelThread extends Thread {
 
     private final HotelRepository repository;
@@ -15,6 +21,7 @@ public class AutoCancelThread extends Thread {
     private static final int CHECK_INTERVAL_MS = 60 * 1000;
     private static final int EXPIRE_MINUTES    = 30;
 
+    @Autowired
     public AutoCancelThread(HotelRepository repository,
                             BusinessLogicService logicService,
                             DatabaseManager dbManager) {
@@ -23,6 +30,11 @@ public class AutoCancelThread extends Thread {
         this.dbManager    = dbManager;
         this.setDaemon(true);
         this.setName("AutoCancel-Thread");
+    }
+
+    @PostConstruct
+    public void startThread() {
+        this.start();
     }
 
     @Override
@@ -53,6 +65,7 @@ public class AutoCancelThread extends Thread {
         dbManager.saveAll();
     }
 
+    @PreDestroy
     public void stopThread() {
         this.running = false;
         this.interrupt();

@@ -107,9 +107,9 @@
                 <hr class="my-4">
 
                 <!-- Thanh toán -->
-                <h5 class="mb-3 text-primary"><i class="fas fa-credit-card me-2"></i>Thanh toán & Nguồn</h5>
+                <h5 class="mb-3 text-primary"><i class="fas fa-credit-card me-2"></i>Thanh toán</h5>
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label class="form-label">Hình thức thanh toán *</label>
                         <select class="form-select" name="paymentMethod" required>
                             <option th:each="method : ${paymentMethods}"
@@ -117,17 +117,6 @@
                                     th:text="${method}"
                                     th:selected="${method == paymentMethod}">
                                 Tiền mặt
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Nguồn đặt *</label>
-                        <select class="form-select" name="bookingSource" required>
-                            <option th:each="source : ${bookingSources}"
-                                    th:value="${source}"
-                                    th:text="${source}"
-                                    th:selected="${source == bookingSource}">
-                                Gặp trực tiếp
                             </option>
                         </select>
                     </div>
@@ -139,6 +128,7 @@
                 </div>
 
                 <!-- Hidden fields -->
+                <input type="hidden" name="bookingSource" value="Internet">
                 <input type="hidden" name="registrantName" value="">
                 <input type="hidden" name="fax" value="">
 

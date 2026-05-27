@@ -6,5 +6,6 @@ public enum ReservationStatus {
     MODIFIED,    // Đã sửa đổi
     CANCELLED,   // Đã hủy
     NO_SHOW,     // Không đến
-    CHECKED_IN   // Đã nhận phòng
+    CHECKED_IN,  // Đã nhận phòng
+    CHECKED_OUT  // Đã trả phòng
 }
