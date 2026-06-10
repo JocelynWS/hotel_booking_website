@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import jakarta.servlet.http.HttpSession;
 
 import com.hotel.model.BookingSource;
 import com.hotel.model.Guest;
@@ -27,8 +26,10 @@ import com.hotel.model.ReservationType;
 import com.hotel.model.Room;
 import com.hotel.model.RoomStatus;
 import com.hotel.repository.HotelRepository;
-import com.hotel.service.DatabaseManager;
 import com.hotel.service.BusinessLogicService;
+import com.hotel.service.DatabaseManager;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class BookingController {
@@ -736,6 +737,18 @@ public class BookingController {
         model.addAttribute("rooms", allRooms);
         model.addAttribute("reservations", allReservations);
         model.addAttribute("guests", allGuests);
+
+        Map<String, String> roomOccupiedPeriods = new HashMap<>();
+        for (Room room : allRooms) {
+            if (room.getStatus() == RoomStatus.OCCUPIED) {
+                repo.findActiveReservationForRoom(room.getRoomId())
+                    .ifPresent(res -> roomOccupiedPeriods.put(
+                        room.getRoomId(),
+                        "Có khách ngày " + res.getCheckInDate() + " đến ngày " + res.getCheckOutDate()
+                    ));
+            }
+        }
+        model.addAttribute("roomOccupiedPeriods", roomOccupiedPeriods);
         
         model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("occupiedRooms", occupiedCount);

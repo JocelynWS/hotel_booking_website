@@ -2,6 +2,7 @@ package com.hotel.repository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,6 +139,15 @@ public class HotelRepository {
                 .anyMatch(r -> hasDateOverlap(r.getCheckInDate(), r.getCheckOutDate(), checkIn, checkOut));
     }
 
+    public Optional<Reservation> findActiveReservationForRoom(String roomId) {
+        return reservations.stream()
+                .filter(r -> r.getRoom().getRoomId().equalsIgnoreCase(roomId))
+                .filter(r -> r.getStatus() != ReservationStatus.CANCELLED)
+                .filter(r -> r.getStatus() != ReservationStatus.NO_SHOW)
+                .filter(r -> r.getStatus() != ReservationStatus.CHECKED_OUT)
+                .max(Comparator.comparing(Reservation::getCheckInDate));
+    }
+
     public void updateRoomStatus(String roomId, RoomStatus status) {
         findRoomById(roomId).ifPresent(r -> r.setStatus(status));
     }
@@ -224,6 +234,8 @@ public class HotelRepository {
         }
         if (index >= 0) {
             reservations.set(index, reservation);
+        } else {
+            reservations.add(reservation);
         }
     }
 
