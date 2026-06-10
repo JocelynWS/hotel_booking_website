@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đặt phòng - Đại Bàng Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background:#f4f8fb;">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background:#003c71;">
+    <div class="container">
+        <a class="navbar-brand" href="/">Đại Bàng Hotel</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/user/logout">Đăng xuất</a></li>
+            </ul>
+            <span class="navbar-text text-white">
+                <strong th:text="${guest.fullName}"></strong>
+            </span>
+        </div>
+    </div>
+</nav>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="mb-1">Lịch sử đặt phòng</h3>
+                            <p class="text-muted mb-0">Xem lại các đặt phòng đã thực hiện.</p>
+                        </div>
+                        <a class="btn btn-outline-secondary" href="/">Tiếp tục đặt phòng</a>
+                    </div>
+
+                    <div th:if="${reservations.empty}" class="alert alert-info">
+                        Chưa có đặt phòng nào. Hãy thực hiện đặt phòng để xem lịch sử của bạn.
+                    </div>
+
+                    <div th:if="${!reservations.empty}">
+                        <div class="accordion" id="historyAccordion">
+                            <div class="accordion-item" th:each="reservation, iterStat : ${reservations}">
+                                <h2 class="accordion-header" th:id="'heading' + ${iterStat.index}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            th:data-bs-target="'#__' + ${iterStat.index}"
+                                            aria-expanded="false"
+                                            th:aria-controls="'__' + ${iterStat.index}">
+                                        <div class="d-flex justify-content-between w-100">
+                                            <div>
+                                                <strong th:text="${reservation.reservationId}"></strong>
+                                                &nbsp;|&nbsp;
+                                                <span th:text="${reservation.room.roomType}"></span>
+                                                &nbsp;|&nbsp;
+                                                <span th:text="${reservation.room.roomId}"></span>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-primary" th:text="${reservation.status}"></span>
+                                                <br>
+                                                <small th:text="${reservation.checkInDate + ' → ' + reservation.checkOutDate}"></small>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div th:id="'__' + ${iterStat.index}" class="accordion-collapse collapse"
+                                     th:aria-labelledby="'heading' + ${iterStat.index}"
+                                     data-bs-parent="#historyAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><strong>Phòng:</strong> <span th:text="${reservation.room.roomId}"></span></div>
+                                            <div class="col-md-4"><strong>Loại phòng:</strong> <span th:text="${reservation.room.roomType}"></span></div>
+                                            <div class="col-md-4"><strong>Giá/đêm:</strong> <span th:text="${reservation.pricePerNight} + ' VND'"></span></div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><strong>Khách:</strong> <span th:text="${reservation.numberOfGuests}"></span></div>
+                                            <div class="col-md-4"><strong>Thanh toán:</strong> <span th:text="${reservation.paymentMethod}"></span></div>
+                                            <div class="col-md-4"><strong>Tổng tiền:</strong> <span th:text="${reservation.calculateTotalPrice()} + ' VND'"></span></div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4"><strong>Loại đặt phòng:</strong> <span th:text="${reservation.reservationType}"></span></div>
+                                            <div class="col-md-4"><strong>Nguồn:</strong> <span th:text="${reservation.bookingSource}"></span></div>
+                                            <div class="col-md-4"><strong>Yêu cầu:</strong> <span th:text="${reservation.specialRequests != null && reservation.specialRequests != '' ? reservation.specialRequests : 'Không có'}"></span></div>
+                                        </div>
+                                        <div th:if="${!reservation.historyLog.empty}">
+                                            <h6>Lịch sử cập nhật</h6>
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item" th:each="history : ${reservation.historyLog}">
+                                                    <div><strong th:text="${history.timestamp}"></strong> - <span th:text="${history.description}"></span></div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div th:if="${reservation.historyLog.empty}" class="text-muted">
+                                            Chưa có lịch sử cập nhật cho đơn này.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

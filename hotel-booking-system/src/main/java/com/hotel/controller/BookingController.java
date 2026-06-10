@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -189,9 +190,28 @@ public class BookingController {
         return List.of("Gặp trực tiếp", "Điện thoại", "Fax", "Email", "Internet");
     }
 
+    @ModelAttribute
+    public void addCurrentGuestToModel(HttpSession session, Model model) {
+        String guestId = (String) session.getAttribute("loggedGuestId");
+        if (guestId != null) {
+            repo.findGuestById(guestId).ifPresent(guest -> model.addAttribute("currentGuest", guest));
+        }
+    }
+
+    private Optional<Guest> getLoggedGuest(HttpSession session) {
+        String guestId = (String) session.getAttribute("loggedGuestId");
+        return guestId == null ? Optional.empty() : repo.findGuestById(guestId);
+    }
+
     @GetMapping("/step1")
-    public String step1(@RequestParam(required = false) String roomType, Model model) {
+    public String step1(@RequestParam(required = false) String roomType, Model model, HttpSession session) {
         List<String> roomTypes = getBookingRoomTypes();
+        repo.findGuestById((String) session.getAttribute("loggedGuestId")).ifPresent(guest -> {
+            model.addAttribute("guestName", guest.getFullName());
+            model.addAttribute("phone", guest.getPhone());
+            model.addAttribute("email", guest.getEmail());
+            model.addAttribute("address", guest.getAddress());
+        });
         model.addAttribute("roomTypes", roomTypes);
         model.addAttribute("paymentMethods", getPaymentMethods());
         model.addAttribute("bookingSources", getBookingSources());
@@ -333,15 +353,27 @@ public class BookingController {
             @RequestParam String reservationType,
             @RequestParam String bookingSource,
             @RequestParam(required = false) String specialRequests,
-            Model model) {
+            Model model,
+            HttpSession session) {
 
         LocalDate checkInDate = LocalDate.parse(checkIn);
         LocalDate checkOutDate = LocalDate.parse(checkOut);
         int nights = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
-        Guest guest = new Guest(guestName, phone, email, address);
+        Guest guest = getLoggedGuest(session).orElse(null);
+        if (guest == null) {
+            guest = new Guest(guestName, phone, email, address);
+        } else {
+            guest.setFullName(guestName);
+            guest.setPhone(phone);
+            guest.setEmail(email);
+            guest.setAddress(address);
+        }
         guest.setRegistrantName(registrantName);
         guest.setFax(fax);
+
+        repo.saveGuest(guest);
+        dbManager.saveGuest(guest);
 
         String[] roomIds = roomId.split(",");
         Room firstRoom = repo.findRoomById(roomIds[0]).orElseThrow();
@@ -419,13 +451,22 @@ public class BookingController {
             @RequestParam String bookingSource,
             @RequestParam String specialRequests,
             @RequestParam String transactionCode,
-            Model model) {
+            Model model,
+            HttpSession session) {
 
         LocalDate checkInDate = LocalDate.parse(checkIn);
         LocalDate checkOutDate = LocalDate.parse(checkOut);
         int nights = (int) ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
-        Guest guest = new Guest(guestName, phone, email, address);
+        Guest guest = getLoggedGuest(session).orElse(null);
+        if (guest == null) {
+            guest = new Guest(guestName, phone, email, address);
+        } else {
+            guest.setFullName(guestName);
+            guest.setPhone(phone);
+            guest.setEmail(email);
+            guest.setAddress(address);
+        }
         guest.setRegistrantName(registrantName);
         guest.setFax(fax);
         repo.saveGuest(guest);
@@ -462,6 +503,89 @@ public class BookingController {
         model.addAttribute("displayRoomId", roomId);
 
         return "success";
+    }
+
+    @GetMapping("/user/login")
+    public String userLogin(HttpSession session) {
+        if (session.getAttribute("loggedGuestId") != null) {
+            return "redirect:/user/history";
+        }
+        return "user_login";
+    }
+
+    @PostMapping("/user/login")
+    public String doUserLogin(
+            @RequestParam String phone,
+            @RequestParam String email,
+            HttpSession session,
+            Model model) {
+
+        Optional<Guest> guest = repo.findGuestByPhone(phone)
+                .filter(g -> g.getEmail() != null && g.getEmail().equalsIgnoreCase(email));
+
+        if (guest.isPresent()) {
+            session.setAttribute("loggedGuestId", guest.get().getGuestId());
+            return "redirect:/user/history";
+        }
+
+        model.addAttribute("error", "Số điện thoại hoặc email không đúng hoặc chưa đăng ký.");
+        return "user_login";
+    }
+
+    @GetMapping("/user/register")
+    public String userRegister(HttpSession session) {
+        if (session.getAttribute("loggedGuestId") != null) {
+            return "redirect:/user/history";
+        }
+        return "user_register";
+    }
+
+    @PostMapping("/user/register")
+    public String doUserRegister(
+            @RequestParam String fullName,
+            @RequestParam String phone,
+            @RequestParam String email,
+            @RequestParam String address,
+            HttpSession session,
+            Model model) {
+
+        if (repo.findGuestByPhone(phone).isPresent()) {
+            model.addAttribute("error", "Số điện thoại này đã được đăng ký. Vui lòng đăng nhập hoặc dùng số khác.");
+            model.addAttribute("fullName", fullName);
+            model.addAttribute("phone", phone);
+            model.addAttribute("email", email);
+            model.addAttribute("address", address);
+            return "user_register";
+        }
+
+        Guest guest = new Guest(fullName, phone, email, address);
+        repo.saveGuest(guest);
+        dbManager.saveGuest(guest);
+        session.setAttribute("loggedGuestId", guest.getGuestId());
+        return "redirect:/user/history";
+    }
+
+    @GetMapping("/user/logout")
+    public String userLogout(HttpSession session) {
+        session.removeAttribute("loggedGuestId");
+        session.invalidate();
+        return "redirect:/";
+    }
+
+    @GetMapping("/user/history")
+    public String userHistory(HttpSession session, Model model) {
+        Optional<Guest> guest = getLoggedGuest(session);
+        if (guest.isEmpty()) {
+            return "redirect:/user/login";
+        }
+
+        List<Reservation> reservations = repo.getAllReservations().stream()
+                .filter(r -> r.getGuest().getGuestId().equals(guest.get().getGuestId()))
+                .toList();
+
+        model.addAttribute("reservations", reservations);
+        model.addAttribute("guest", guest.get());
+        return "user_history";
     }
 
     @GetMapping("/step2")

@@ -149,7 +149,16 @@ public class HotelRepository {
     public Guest saveGuest(Guest guest) {
         if (guest.getGuestId() == null || guest.getGuestId().isEmpty()) {
             guest.setGuestId("GST" + String.format("%04d", guestCounter++));
+            guests.add(guest);
+            return guest;
         }
+
+        Optional<Guest> existingGuest = findGuestById(guest.getGuestId());
+        if (existingGuest.isPresent()) {
+            updateGuest(guest);
+            return guest;
+        }
+
         guests.add(guest);
         return guest;
     }
