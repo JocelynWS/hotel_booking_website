@@ -13,7 +13,6 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="/user/register">Đăng ký</a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/history">Lịch sử</a></li>
                 <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
             </ul>
         </div>
@@ -21,20 +20,20 @@
 </nav>
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-5">
-                    <h3 class="card-title mb-4 text-center">Đăng nhập khách hàng</h3>
-                    <p class="text-muted text-center">Nhập số điện thoại và email để truy cập lịch sử đặt phòng.</p>
+                    <h3 class="card-title mb-4 text-center">Đăng nhập</h3>
+                    <p class="text-muted text-center">Nhập số điện thoại hoặc email cùng mật khẩu.</p>
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                     <form action="/user/login" method="post">
                         <div class="mb-3">
-                            <label class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control" name="phone" placeholder="0912xxxxxx" required>
+                            <label class="form-label">Số điện thoại / Email</label>
+                            <input type="text" class="form-control" name="login" placeholder="0912xxxxxx hoặc email@domain.com" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" placeholder="email@domain.com" required>
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" name="password" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
                     </form>

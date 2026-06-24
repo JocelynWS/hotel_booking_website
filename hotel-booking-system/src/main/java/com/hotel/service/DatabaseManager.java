@@ -66,6 +66,7 @@ public class DatabaseManager {
                 "id_number VARCHAR(50), " +
                 "fax VARCHAR(50), " +
                 "registrant_name VARCHAR(255), " +
+                "password VARCHAR(255), " +
                 "blacklisted BOOLEAN DEFAULT FALSE, " +
                 "blacklist_reason VARCHAR(255), " +
                 "blacklisted_at TIMESTAMP, " +
@@ -210,7 +211,7 @@ public class DatabaseManager {
     }
 
     public void saveGuest(Guest g) {
-        String sql = "MERGE INTO guests KEY(guest_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "MERGE INTO guests KEY(guest_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 g.getGuestId(),
                 g.getFullName(),
@@ -220,6 +221,7 @@ public class DatabaseManager {
                 g.getIdNumber(),
                 g.getFax(),
                 g.getRegistrantName(),
+                g.getPassword(),
                 g.isBlacklisted(),
                 g.getBlacklistReason(),
                 g.getBlacklistedAt() != null ? java.sql.Timestamp.valueOf(g.getBlacklistedAt()) : null,
@@ -307,6 +309,7 @@ public class DatabaseManager {
         );
         g.setFax(rs.getString("fax"));
         g.setRegistrantName(rs.getString("registrant_name"));
+        g.setPassword(rs.getString("password"));
         if (rs.getBoolean("blacklisted")) {
             g.addToBlacklist(rs.getString("blacklist_reason"));
         }

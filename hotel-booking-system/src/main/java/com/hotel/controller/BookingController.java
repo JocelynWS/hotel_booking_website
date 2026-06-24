@@ -142,11 +142,10 @@ public class BookingController {
                 roomsByType.put(type, typeRooms);
                 long count = 0;
                 for (Room room : typeRooms) {
-                    boolean available = true;
+                    boolean available = room.getStatus() == RoomStatus.AVAILABLE;
                     if (isSearched) {
                         available = !repo.isRoomBookedInPeriod(room.getRoomId(), checkInDate, checkOutDate) 
-                                    && room.getStatus() != RoomStatus.MAINTENANCE 
-                                    && room.getStatus() != RoomStatus.OUT_OF_ORDER;
+                                    && room.getStatus() == RoomStatus.AVAILABLE;
                     }
                     roomAvailabilityMap.put(room.getRoomId(), available);
                     if (available) {
@@ -154,6 +153,9 @@ public class BookingController {
                     }
                 }
                 availableRoomCounts.put(type, count);
+                if (count == 0) {
+                    roomsByType.remove(type);
+                }
             }
         }
         
@@ -205,7 +207,12 @@ public class BookingController {
     }
 
     @GetMapping("/step1")
-    public String step1(@RequestParam(required = false) String roomType, Model model, HttpSession session) {
+    public String step1(
+            @RequestParam(required = false) String roomType,
+            @RequestParam(required = false) String checkIn,
+            @RequestParam(required = false) String checkOut,
+            Model model,
+            HttpSession session) {
         List<String> roomTypes = getBookingRoomTypes();
         repo.findGuestById((String) session.getAttribute("loggedGuestId")).ifPresent(guest -> {
             model.addAttribute("guestName", guest.getFullName());
@@ -217,6 +224,8 @@ public class BookingController {
         model.addAttribute("paymentMethods", getPaymentMethods());
         model.addAttribute("bookingSources", getBookingSources());
         model.addAttribute("selectedRoomType", roomType == null ? roomTypes.get(0) : roomType);
+        model.addAttribute("checkIn", checkIn);
+        model.addAttribute("checkOut", checkOut);
         model.addAttribute("checkInDefault", LocalDate.now().plusDays(1).toString());
         model.addAttribute("checkOutDefault", LocalDate.now().plusDays(3).toString());
         return "step1";
@@ -516,20 +525,22 @@ public class BookingController {
 
     @PostMapping("/user/login")
     public String doUserLogin(
-            @RequestParam String phone,
-            @RequestParam String email,
+            @RequestParam String login,
+            @RequestParam String password,
             HttpSession session,
             Model model) {
 
-        Optional<Guest> guest = repo.findGuestByPhone(phone)
-                .filter(g -> g.getEmail() != null && g.getEmail().equalsIgnoreCase(email));
+        Optional<Guest> guest = repo.getAllGuests().stream()
+                .filter(g -> g.getPhone().equals(login) || (g.getEmail() != null && g.getEmail().equalsIgnoreCase(login)))
+                .filter(g -> g.getPassword() != null && g.getPassword().equals(password))
+                .findFirst();
 
         if (guest.isPresent()) {
             session.setAttribute("loggedGuestId", guest.get().getGuestId());
             return "redirect:/user/history";
         }
 
-        model.addAttribute("error", "Số điện thoại hoặc email không đúng hoặc chưa đăng ký.");
+        model.addAttribute("error", "Số điện thoại/Email hoặc mật khẩu không đúng.");
         return "user_login";
     }
 
@@ -547,6 +558,7 @@ public class BookingController {
             @RequestParam String phone,
             @RequestParam String email,
             @RequestParam String address,
+            @RequestParam String password,
             HttpSession session,
             Model model) {
 
@@ -560,6 +572,7 @@ public class BookingController {
         }
 
         Guest guest = new Guest(fullName, phone, email, address);
+        guest.setPassword(password);
         repo.saveGuest(guest);
         dbManager.saveGuest(guest);
         session.setAttribute("loggedGuestId", guest.getGuestId());

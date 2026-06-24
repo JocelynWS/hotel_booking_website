@@ -78,10 +78,14 @@
                 <li class="nav-item"><a class="nav-link" href="/#rooms">Đặt phòng</a></li>
                 <li class="nav-item"><a class="nav-link" href="/#contact">Liên hệ</a></li>
             </ul>
-            <ul class="navbar-nav mb-2 mb-lg-0">
+            <ul class="navbar-nav mb-2 mb-lg-0" th:if="${currentGuest == null}">
                 <li class="nav-item"><a class="nav-link" href="/user/login">Đăng nhập</a></li>
                 <li class="nav-item"><a class="nav-link" href="/user/register">Đăng ký</a></li>
+            </ul>
+            <ul class="navbar-nav mb-2 mb-lg-0" th:if="${currentGuest != null}">
+                <li class="nav-item"><span class="nav-link"><i class="fas fa-user me-1"></i><span th:text="${currentGuest.fullName}"></span></span></li>
                 <li class="nav-item"><a class="nav-link" href="/user/history">Lịch sử</a></li>
+                <li class="nav-item"><a class="nav-link" href="/user/logout">Đăng xuất</a></li>
             </ul>
         </div>
     </div>
@@ -158,39 +162,36 @@
                             <i class="fas fa-info-circle me-1"></i>Chi tiết
                         </button>
                     </div>
-                    <span th:if="${isSearched}" class="badge bg-success" th:text="'Còn ' + ${availableRoomCounts[entry.key]} + ' phòng trống'"></span>
+                    <span class="badge bg-success" th:if="${availableRoomCounts[entry.key] > 0}" th:text="'Còn ' + ${availableRoomCounts[entry.key]} + ' phòng trống'"></span>
+                    <span class="badge bg-secondary" th:if="${availableRoomCounts[entry.key] == 0}">Hết phòng</span>
                 </div>
                 <div class="room-grid">
-                    <div class="room-card" th:each="room : ${entry.value}">
-                        <div class="room-card__image">
-                            <img th:src="${typeImages[entry.key]}" th:attr="alt=${entry.key}">
-                            <div th:if="${isSearched}">
-                                <div th:if="${roomAvailabilityMap[room.roomId]}" class="room-card__badge">Còn trống</div>
-                                <div th:unless="${roomAvailabilityMap[room.roomId]}" class="room-card__badge" style="background: #999;">Đã đặt</div>
+                    <th:block th:each="room : ${entry.value}">
+                        <div class="room-card" th:if="${roomAvailabilityMap[room.roomId]}">
+                            <div class="room-card__image">
+                                <img th:src="${typeImages[entry.key]}" th:attr="alt=${entry.key}">
+                                <div th:if="${isSearched}">
+                                    <div class="room-card__badge">Còn trống</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="room-card__content">
-                            <div class="room-card__id" th:text="'Phòng ' + ${room.roomId}"></div>
-                            <div class="room-card__desc" th:text="'Phòng ' + ${room.roomType} + ', tối đa ' + ${room.capacity} + ' khách'"></div>
-                            <div class="room-card__features">
-                                <span class="room-feature"><i class="fas fa-users"></i><span th:text="${room.capacity} + ' người'"></span></span>
-                                <span class="room-feature"><i class="fas fa-wifi"></i><span>Wifi</span></span>
-                                <span class="room-feature"><i class="fas fa-tv"></i><span>TV</span></span>
+                            <div class="room-card__content">
+                                <div class="room-card__id" th:text="'Phòng ' + ${room.roomId}"></div>
+                                <div class="room-card__desc" th:text="'Phòng ' + ${room.roomType} + ', tối đa ' + ${room.capacity} + ' khách'"></div>
+                                <div class="room-card__features">
+                                    <span class="room-feature"><i class="fas fa-users"></i><span th:text="${room.capacity} + ' người'"></span></span>
+                                    <span class="room-feature"><i class="fas fa-wifi"></i><span>Wifi</span></span>
+                                    <span class="room-feature"><i class="fas fa-tv"></i><span>TV</span></span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="room-card__footer">
-                            <div class="room-card__price">
-                                <div class="room-card__price-value" th:text="${room.priceLabel}" style="color: var(--orange);"></div>
-                                <div class="room-card__price-unit">VND/đêm</div>
-                            </div>
-                            <div th:if="${!isSearched || roomAvailabilityMap[room.roomId]}">
+                            <div class="room-card__footer">
+                                <div class="room-card__price">
+                                    <div class="room-card__price-value" th:text="${room.priceLabel}" style="color: var(--orange);"></div>
+                                    <div class="room-card__price-unit">VND/đêm</div>
+                                </div>
                                 <a th:href="@{/step1(roomType=${entry.key}, checkIn=${searchCheckIn}, checkOut=${searchCheckOut})}" class="btn-room-book">Đặt ngay</a>
                             </div>
-                            <div th:if="${isSearched && !roomAvailabilityMap[room.roomId]}">
-                                <button class="btn-room-book disabled" disabled>Đã đặt</button>
-                            </div>
                         </div>
-                    </div>
+                    </th:block>
                 </div>
             </div>
         </div>

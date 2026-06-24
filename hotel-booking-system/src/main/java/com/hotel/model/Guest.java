@@ -13,6 +13,8 @@ public class Guest {
     private String fax;
     private String registrantName;  // Người đăng ký (nếu khác khách)
 
+    private String password;
+
     // ── Blacklist ────────────────────────────────────────────────────────────
     private boolean blacklisted;
     private String  blacklistReason;
@@ -70,6 +72,8 @@ public class Guest {
     public void   setFax(String v)          { this.fax = v; }
     public String getRegistrantName()       { return registrantName; }
     public void   setRegistrantName(String v) { this.registrantName = v; }
+    public String getPassword()             { return password; }
+    public void   setPassword(String v)     { this.password = v; }
     public String getBlacklistReason()      { return blacklistReason; }
     public LocalDateTime getBlacklistedAt() { return blacklistedAt; }
     public LocalDateTime getCreatedAt()     { return createdAt; }
