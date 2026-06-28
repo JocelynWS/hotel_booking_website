@@ -135,14 +135,16 @@
         <!-- Bộ lọc ngày -->
         <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <form action="/" method="GET" class="row g-3 align-items-end">
+                <form action="/" method="GET" class="row g-3 align-items-end" id="searchForm">
+                    <div th:if="${dateError}" class="alert alert-danger py-2 mb-0 col-12" th:text="${dateError}"></div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Ngày nhận phòng</label>
-                        <input type="date" class="form-control" name="checkIn" th:value="${searchCheckIn}" required>
+                        <input type="date" class="form-control" name="checkIn" id="checkIn" th:value="${searchCheckIn}" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Ngày trả phòng</label>
-                        <input type="date" class="form-control" name="checkOut" th:value="${searchCheckOut}" required>
+                        <input type="date" class="form-control" name="checkOut" id="checkOut" th:value="${searchCheckOut}" required>
+                        <div class="invalid-feedback" id="dateError">Ngày trả phòng phải sau ngày nhận phòng!</div>
                     </div>
                     <div class="col-md-4">
                         <button type="submit" class="btn btn-hero w-100"><i class="fas fa-search me-2"></i>Tìm phòng trống</button>
@@ -162,12 +164,12 @@
                             <i class="fas fa-info-circle me-1"></i>Chi tiết
                         </button>
                     </div>
-                    <span class="badge bg-success" th:if="${availableRoomCounts[entry.key] > 0}" th:text="'Còn ' + ${availableRoomCounts[entry.key]} + ' phòng trống'"></span>
-                    <span class="badge bg-secondary" th:if="${availableRoomCounts[entry.key] == 0}">Hết phòng</span>
+                    <span th:if="${isSearched && availableRoomCounts[entry.key] > 0}" class="badge bg-success" th:text="'Còn ' + ${availableRoomCounts[entry.key]} + ' phòng trống'"></span>
+                    <span th:if="${isSearched && availableRoomCounts[entry.key] == 0}" class="badge bg-secondary">Hết phòng</span>
                 </div>
                 <div class="room-grid">
                     <th:block th:each="room : ${entry.value}">
-                        <div class="room-card" th:if="${roomAvailabilityMap[room.roomId]}">
+                        <div class="room-card" th:if="${!isSearched || roomAvailabilityMap[room.roomId]}">
                             <div class="room-card__image">
                                 <img th:src="${typeImages[entry.key]}" th:attr="alt=${entry.key}">
                                 <div th:if="${isSearched}">
@@ -188,7 +190,11 @@
                                     <div class="room-card__price-value" th:text="${room.priceLabel}" style="color: var(--orange);"></div>
                                     <div class="room-card__price-unit">VND/đêm</div>
                                 </div>
-                                <a th:href="@{/step1(roomType=${entry.key}, checkIn=${searchCheckIn}, checkOut=${searchCheckOut})}" class="btn-room-book">Đặt ngay</a>
+                                <a th:if="${roomAvailabilityMap[room.roomId]}" th:href="@{/step1(roomType=${entry.key}, checkIn=${searchCheckIn}, checkOut=${searchCheckOut})}" class="btn-room-book">Đặt ngay</a>
+                                <button th:unless="${roomAvailabilityMap[room.roomId]}" class="btn-room-book disabled" disabled>
+                                    <span th:if="${room.status.name() == 'MAINTENANCE' or room.status.name() == 'OUT_OF_ORDER' or room.status.name() == 'CLEANING'}">Không khả dụng</span>
+                                    <span th:unless="${room.status.name() == 'MAINTENANCE' or room.status.name() == 'OUT_OF_ORDER' or room.status.name() == 'CLEANING'}">Đã đặt</span>
+                                </button>
                             </div>
                         </div>
                     </th:block>
@@ -279,5 +285,44 @@
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var checkIn = document.getElementById('checkIn');
+    var checkOut = document.getElementById('checkOut');
+    var dateError = document.getElementById('dateError');
+    var searchForm = document.getElementById('searchForm');
+
+    function addDays(dateStr, days) {
+        var d = new Date(dateStr);
+        d.setDate(d.getDate() + days);
+        return d.toISOString().split('T')[0];
+    }
+
+    function validate() {
+        if (!checkIn.value || !checkOut.value) return;
+        if (checkOut.value <= checkIn.value) {
+            checkOut.classList.add('is-invalid');
+            dateError.style.display = 'block';
+        } else {
+            checkOut.classList.remove('is-invalid');
+            dateError.style.display = 'none';
+        }
+    }
+
+    checkIn.addEventListener('change', function() {
+        checkOut.min = addDays(checkIn.value, 1);
+        validate();
+    });
+
+    checkOut.addEventListener('change', validate);
+
+    searchForm.addEventListener('submit', function(e) {
+        validate();
+        if (checkOut.value <= checkIn.value) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 </body>
 </html>

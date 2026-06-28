@@ -653,15 +653,14 @@
                                     1,200,000</td>
                                 <td th:text="${room.floor}">1</td>
                                 <td th:text="${room.capacity} + ' Khách'">2 Khách</td>
-                                <td th:with="occupiedInfo=${roomOccupiedPeriods[room.roomId]}">
+                                <td th:with="periods=${roomBookingPeriods[room.roomId]}">
                                     <span th:if="${room.status.name() == 'AVAILABLE'}"
                                         class="badge-custom badge-available">
-                                        <i class="fa-solid fa-circle-check"></i> Trống (Sẵn sàng)
+                                        <i class="fa-solid fa-circle-check"></i> Trống
                                     </span>
                                     <span th:if="${room.status.name() == 'OCCUPIED'}"
                                         class="badge-custom badge-occupied">
-                                        <i class="fa-solid fa-bed"></i>
-                                        <span th:text="${occupiedInfo != null ? occupiedInfo : 'Đang có khách'}"></span>
+                                        <i class="fa-solid fa-bed"></i> Đang có khách
                                     </span>
                                     <span th:if="${room.status.name() == 'CLEANING'}"
                                         class="badge-custom badge-cleaning">
@@ -671,6 +670,9 @@
                                         class="badge-custom badge-maintenance">
                                         <i class="fa-solid fa-wrench"></i> Đang bảo trì
                                     </span>
+                                    <div th:if="${periods != null}" class="mt-1 small text-muted">
+                                        <div th:each="p : ${periods}"><i class="fa-regular fa-calendar me-1"></i><span th:text="${p}"></span></div>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="dropdown d-inline-block">

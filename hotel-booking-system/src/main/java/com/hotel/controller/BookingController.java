@@ -3,6 +3,7 @@ package com.hotel.controller;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,6 +55,13 @@ public class BookingController {
         LocalDate checkInDate = checkIn != null && !checkIn.isEmpty() ? LocalDate.parse(checkIn) : null;
         LocalDate checkOutDate = checkOut != null && !checkOut.isEmpty() ? LocalDate.parse(checkOut) : null;
         boolean isSearched = (checkInDate != null && checkOutDate != null);
+
+        if (isSearched && !checkOutDate.isAfter(checkInDate)) {
+            model.addAttribute("dateError", "Ngày trả phòng phải sau ngày nhận phòng!");
+            isSearched = false;
+            checkInDate = null;
+            checkOutDate = null;
+        }
 
         model.addAttribute("isSearched", isSearched);
         model.addAttribute("searchCheckIn", checkIn);
@@ -142,10 +150,12 @@ public class BookingController {
                 roomsByType.put(type, typeRooms);
                 long count = 0;
                 for (Room room : typeRooms) {
-                    boolean available = room.getStatus() == RoomStatus.AVAILABLE;
+                    boolean available;
                     if (isSearched) {
-                        available = !repo.isRoomBookedInPeriod(room.getRoomId(), checkInDate, checkOutDate) 
-                                    && room.getStatus() == RoomStatus.AVAILABLE;
+                        available = (room.getStatus() == RoomStatus.AVAILABLE || room.getStatus() == RoomStatus.OCCUPIED)
+                                    && !repo.isRoomBookedInPeriod(room.getRoomId(), checkInDate, checkOutDate);
+                    } else {
+                        available = room.getStatus() == RoomStatus.AVAILABLE;
                     }
                     roomAvailabilityMap.put(room.getRoomId(), available);
                     if (available) {
@@ -153,7 +163,7 @@ public class BookingController {
                     }
                 }
                 availableRoomCounts.put(type, count);
-                if (count == 0) {
+                if (isSearched && count == 0) {
                     roomsByType.remove(type);
                 }
             }
@@ -751,17 +761,19 @@ public class BookingController {
         model.addAttribute("reservations", allReservations);
         model.addAttribute("guests", allGuests);
 
-        Map<String, String> roomOccupiedPeriods = new HashMap<>();
+        Map<String, List<String>> roomBookingPeriods = new HashMap<>();
         for (Room room : allRooms) {
-            if (room.getStatus() == RoomStatus.OCCUPIED) {
-                repo.findActiveReservationForRoom(room.getRoomId())
-                    .ifPresent(res -> roomOccupiedPeriods.put(
-                        room.getRoomId(),
-                        "Có khách ngày " + res.getCheckInDate() + " đến ngày " + res.getCheckOutDate()
-                    ));
+            List<String> periods = allReservations.stream()
+                .filter(r -> r.getRoom().getRoomId().equals(room.getRoomId()))
+                .filter(r -> r.getStatus() != ReservationStatus.CANCELLED && r.getStatus() != ReservationStatus.NO_SHOW && r.getStatus() != ReservationStatus.CHECKED_OUT)
+                .sorted(Comparator.comparing(Reservation::getCheckInDate))
+                .map(r -> r.getCheckInDate() + " → " + r.getCheckOutDate())
+                .toList();
+            if (!periods.isEmpty()) {
+                roomBookingPeriods.put(room.getRoomId(), periods);
             }
         }
-        model.addAttribute("roomOccupiedPeriods", roomOccupiedPeriods);
+        model.addAttribute("roomBookingPeriods", roomBookingPeriods);
         
         model.addAttribute("totalRooms", totalRooms);
         model.addAttribute("occupiedRooms", occupiedCount);
@@ -834,8 +846,24 @@ public class BookingController {
             return "redirect:/admin/login";
         }
 
-        repo.updateRoomStatus(roomId, RoomStatus.valueOf(status));
+        String adminUser = (String) session.getAttribute("adminUser");
+        RoomStatus newStatus = RoomStatus.valueOf(status);
+        repo.updateRoomStatus(roomId, newStatus);
         repo.findRoomById(roomId).ifPresent(dbManager::saveRoom);
+
+        if (newStatus == RoomStatus.AVAILABLE) {
+            repo.getAllReservations().stream()
+                .filter(r -> r.getRoom().getRoomId().equals(roomId))
+                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED || r.getStatus() == ReservationStatus.CHECKED_IN || r.getStatus() == ReservationStatus.PENDING)
+                .findFirst().ifPresent(res -> {
+                    if (res.getStatus() == ReservationStatus.CHECKED_IN) {
+                        res.checkOut(adminUser);
+                    } else {
+                        res.cancel("Phòng đã được chuyển sang trạng thái Trống", adminUser);
+                    }
+                    dbManager.saveReservation(res);
+                });
+        }
 
         return "redirect:/admin?tab=rooms";
     }

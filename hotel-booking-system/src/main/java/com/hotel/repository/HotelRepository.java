@@ -126,7 +126,7 @@ public class HotelRepository {
         return rooms.stream()
                 .filter(r -> r.getRoomType().equalsIgnoreCase(roomType))
                 .filter(r -> r.getCapacity() >= guests)
-                .filter(r -> r.getStatus() != RoomStatus.MAINTENANCE && r.getStatus() != RoomStatus.OUT_OF_ORDER)
+                .filter(r -> r.getStatus() != RoomStatus.MAINTENANCE && r.getStatus() != RoomStatus.OUT_OF_ORDER && r.getStatus() != RoomStatus.CLEANING)
                 .filter(r -> !isRoomBookedInPeriod(r.getRoomId(), checkIn, checkOut))
                 .toList();
     }
